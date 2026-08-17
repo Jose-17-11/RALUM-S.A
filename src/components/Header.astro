@@ -1,14 +1,24 @@
 ---
+import { FaWhatsapp } from "react-icons/fa";
 ---
 <header class="bg-brand-navy sticky top-0 z-50 shadow-md">
   <!-- Barra superior informativa -->
-  <div class="bg-brand-dark border-b border-slate-800 text-slate-300 text-xs py-2 px-4 sm:px-8 flex justify-between items-center">
-    <div class="flex items-center gap-4">
-      <span>📞 Ventas: 735 194 8537</span>
-      <span class="hidden sm:inline">🚚 Envíos a todo México</span>
+  <div class="bg-brand-dark border-b border-slate-800 text-slate-300 text-xs py-2 px-4 sm:px-8 flex flex-wrap justify-between items-center gap-2">
+    <div class="flex items-center gap-2 text-xs">
+      <span class="text-theme-red font-bold flex items-center gap-1">
+        📞 <span class="text-slate-300 font-medium">Líneas de Atención:</span>
+      </span>
+      <a href="tel:7353980048" class="font-bold text-white hover:text-theme-red transition underline-offset-2 hover:underline">
+        735 398 0048
+      </a>
+      <span class="text-slate-600 font-bold">•</span>
+      <a href="tel:7353532248" class="font-bold text-white hover:text-theme-red transition underline-offset-2 hover:underline">
+        735 353 2248
+      </a>
     </div>
-    <span class="bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded text-[10px] font-semibold border border-emerald-500/30">
-      Stock Aspel Sincronizado
+    
+    <span class="text-slate-400 hidden md:inline text-[11px]">
+      📍 Atención directa en taller y mostrador
     </span>
   </div>
 
@@ -35,12 +45,14 @@
 
     <!-- Botón CTA WhatsApp -->
     <a 
-      href="https://wa.me/527351948537" 
+      href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20gustaría%20cotizar%20un%20radiador" 
       target="_blank" 
       rel="noopener noreferrer"
-      class="bg-theme-red hover:bg-theme-red-hover text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg transition-all transform hover:-translate-y-0.5"
+      class="inline-flex items-center justify-center gap-2 bg-theme-red hover:bg-theme-red-hover text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-theme-red/25 hover:shadow-lg hover:shadow-theme-red/40 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-theme-red focus:ring-offset-2 focus:ring-offset-brand-navy"
     >
-      Cotizar WhatsApp
+      <span>Cotizar WhatsApp</span>
+      <!-- Si estás en un archivo .astro usa class="..." en lugar de className -->
+      <FaWhatsapp className="w-4 h-4 text-emerald-300" />
     </a>
   </div>
 </header>

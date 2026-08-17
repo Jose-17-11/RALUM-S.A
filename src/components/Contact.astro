@@ -1,4 +1,5 @@
 ---
+import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
 ---
 <section id="contacto" class="py-16 bg-brand-gray-bg border-t border-slate-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,47 +20,65 @@
       
       <!-- Información de Contacto Directo -->
       <div class="lg:col-span-5 bg-brand-navy text-white rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
-        <h3 class="text-xl font-bold border-b border-slate-700 pb-3">Información de Atención</h3>
+      <h3 class="text-xl font-bold border-b border-slate-700 pb-3">Información de Atención</h3>
 
-        <div class="space-y-4 text-sm">
-          <div class="flex items-start gap-4">
-            <div class="bg-theme-red p-2.5 rounded-lg text-white font-bold text-base">📱</div>
-            <div>
-              <span class="block text-xs text-slate-400 font-semibold uppercase">WhatsApp / Teléfono</span>
-              <a href="https://wa.me/527351948537" target="_blank" class="font-bold text-white hover:text-theme-red transition text-base">
-                +52 735 194 8537
-              </a>
-            </div>
+      <div class="space-y-5 text-sm">
+        <!-- WhatsApp / Teléfono -->
+        <div class="flex items-start gap-4">
+          <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
+            <FaWhatsapp className="w-5 h-5" />
           </div>
-
-          <div class="flex items-start gap-4">
-            <div class="bg-theme-red p-2.5 rounded-lg text-white font-bold text-base">✉️</div>
-            <div>
-              <span class="block text-xs text-slate-400 font-semibold uppercase">Correo Electrónico</span>
-              <span class="font-semibold text-slate-200">contacto@ralumsa.com.mx</span>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-4">
-            <div class="bg-theme-red p-2.5 rounded-lg text-white font-bold text-base">📦</div>
-            <div>
-              <span class="block text-xs text-slate-400 font-semibold uppercase">Envíos y Logística</span>
-              <span class="font-semibold text-slate-200">Envíos express a todo México para refaccionarias y talleres.</span>
-            </div>
+          <div>
+            <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">WhatsApp / Ventas</span>
+            <a 
+              href="https://wa.me/527351948537" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="font-bold text-white hover:text-theme-red transition text-base block mt-0.5"
+            >
+              +52 735 194 8537
+            </a>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-slate-700">
-          <a
-            href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20solicitar%20información%20sobre%20ventas%20al%20mayoreo"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-2"
-          >
-            💬 Abrir Chat Directo en WhatsApp
-          </a>
+        <!-- Correo Electrónico -->
+        <div class="flex items-start gap-4">
+          <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
+            <FaEnvelope className="w-5 h-5" />
+          </div>
+          <div>
+            <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Correo Electrónico</span>
+            <span class="font-semibold text-slate-200 block mt-0.5">contacto@ralumsa.com.mx</span>
+          </div>
+        </div>
+
+        <!-- Atención en Taller y Mostrador -->
+        <div class="flex items-start gap-4">
+          <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
+            <FaTools className="w-5 h-5" />
+          </div>
+          <div>
+            <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Atención en Mostrador y Taller</span>
+            <p class="text-xs text-slate-300 leading-relaxed mt-1">
+              Cotización presencial con muestra física, entrega en mostrador y diagnósticos de enfriamiento.
+            </p>
+          </div>
         </div>
       </div>
+
+      <!-- Botón de acción WhatsApp -->
+      <div class="pt-4 border-t border-slate-700">
+        <a
+          href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20solicitar%20información%20sobre%20un%20radiador"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 active:scale-[0.99]"
+        >
+          <FaWhatsapp className="w-4 h-4" />
+          <span>Abrir Chat Directo en WhatsApp</span>
+        </a>
+      </div>
+    </div>
 
       <!-- Formulario de Contacto -->
       <div class="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xl">
