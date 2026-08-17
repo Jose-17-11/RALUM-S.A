@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CatalogSearch from '../components/CatalogSearch.jsx';
+import { SAMPLE_PRODUCTS } from '../data/products';
+
+export async function getStaticPaths() {
+  return SAMPLE_PRODUCTS.map((product) => ({
+    params: { sku: product.sku },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+---
+
+<Layout title={`${product.title} | RALUM S.A.`}>
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <CatalogSearch client:load />
+  </main>
+</Layout>
