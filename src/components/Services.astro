@@ -15,46 +15,8 @@
  *
  * La sección cierra con un banner de diagnóstico directo para consultas técnicas.
  */
-import { FaTools, FaSnowflake, FaCogs, FaShieldAlt, FaWhatsapp } from 'react-icons/fa';
-
-const SERVICIOS = [
-  {
-    id: 'paneles',
-    title: 'Radiadores y Paneles',
-    subtitle: 'Línea Automotriz, Carga Pesada y Maquinaria',
-    description: 'Venta, diagnóstico y reemplazo de radiadores completos y panales de enfriamiento para autos particulares, flotillas y tractocamiones.',
-    features: ['Ajuste directo OEM', 'Panales en cobre-latón y aluminio', 'Garantía contra fugas y defectos'],
-    icon: FaTools,
-    badge: 'Alta Demanda'
-  },
-  {
-    id: 'aluminio',
-    title: 'Radiadores 100% Aluminio',
-    subtitle: 'Soldadura TIG y Alto Rendimiento',
-    description: 'Diseño y fabricación de radiadores íntegramente soldados en aluminio de alta disipación térmica. Ideales para proyectos especiales, uso rudo y carreras.',
-    features: ['100% libre de tapas plásticas', 'Mayor capacidad de refrigeración', 'Resistencia extrema a presión y vibración'],
-    icon: FaCogs,
-    badge: 'Especialidad RALUM'
-  },
-  {
-    id: 'aire-acondicionado',
-    title: 'Aire Acondicionado Automotriz',
-    subtitle: 'Climatización y Sistemas Térmicos',
-    description: 'Diagnóstico integral, recarga de gas refrigerante, detección de fugas, condensadores y evaporadores para mantener la cabina de tu auto siempre fresca.',
-    features: ['Carga de gas ecológico', 'Revisión y cambio de condensadores', 'Mantenimiento preventivo y correctivo'],
-    icon: FaSnowflake,
-    badge: 'Confort y Rendimiento'
-  },
-  {
-    id: 'tanques',
-    title: 'Tanques de Aluminio para Radiador',
-    subtitle: 'Sustitución de Tapas de Plástico Rotas',
-    description: 'Eliminamos las fallas comunes de fisuras en tapas plásticas fabricando e instalando tanques (tapas) a la medida en aluminio soldado de alta resistencia.',
-    features: ['Reparación definitiva de por vida', 'Fabricación con tomas exactas', 'Pruebas hidrostáticas de presión'],
-    icon: FaShieldAlt,
-    badge: 'Solución Definitiva'
-  }
-];
+import { FaWhatsapp } from 'react-icons/fa';
+import { SERVICIOS } from '../data/services';
 ---
 
 <section id="servicios" class="py-16 bg-slate-900/60 border-t border-b border-slate-800/80 my-12 rounded-3xl overflow-hidden relative">
