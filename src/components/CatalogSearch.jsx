@@ -292,7 +292,7 @@ export default function CatalogSearch() {
 
           {/* TAB 3: MEDIDAS DE NÚCLEO */}
           {activeTab === 'medidas' && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="text-brand-navy-light grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Alto Mínimo (mm)</label>
                 <input

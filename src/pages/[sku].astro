@@ -11,9 +11,18 @@ export async function getStaticPaths() {
 }
 
 const { product } = Astro.props;
+
+// Construcción de título y descripción optimizados para SEO
+const pageTitle = `${product.title} (OEM: ${product.oem}) | RALUM S.A.`;
+const pageDescription = `Radiador para ${product.brand} ${product.model} (${product.version}). Medidas de núcleo: ${product.coreHeight}x${product.coreWidth} mm. SKU: ${product.sku}. ¡Cotiza directo en RALUM S.A.!`;
+const pageImage = product.images[0];
 ---
 
-<Layout title={`${product.title} | RALUM S.A.`}>
+<Layout 
+  title={pageTitle}
+  description={pageDescription}
+  image={pageImage}
+>
   <main class="max-w-7xl mx-auto px-4 py-8">
     <CatalogSearch client:load />
   </main>
