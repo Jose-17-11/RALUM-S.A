@@ -1,5 +1,7 @@
 ---
 import { FaWhatsapp } from "react-icons/fa";
+import { Image } from 'astro:assets';
+import logoRalum from '../assets/logo.jpg';
 ---
 <header class="bg-brand-navy sticky top-0 z-50 shadow-md">
   <!-- Barra superior informativa -->
@@ -23,15 +25,16 @@ import { FaWhatsapp } from "react-icons/fa";
   </div>
 
   <!-- Navegación Principal -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+  <div class="py-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-3">
-      <div class="bg-theme-red p-2.5 rounded-lg text-white font-black text-xl shadow-lg">
-        R
-      </div>
-      <div>
-        <span class="text-2xl font-black text-white tracking-tight italic">RALUM <span class="text-theme-red">S.A.</span></span>
-        <span class="block text-[10px] text-slate-400 uppercase tracking-widest font-bold">Radiadores & Sistemas de Enfriamiento</span>
+    <a href="/" class="flex items-center group shrink-0" aria-label="Inicio - RALUM S.A.">
+      <div class="bg-white px-1 py-0 rounded-lg shadow-sm border border-slate-700/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+        <Image 
+          src={logoRalum} 
+          alt="RALUM S.A. - Radiadores y Sistemas de Enfriamiento" 
+          class="h-20 w-24 max-w-32.5.5 sm:max-w-32.5 object-contain block"
+          loading="eager"
+        />
       </div>
     </a>
 
