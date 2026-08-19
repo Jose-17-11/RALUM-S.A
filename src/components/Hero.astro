@@ -1,4 +1,19 @@
 ---
+/**
+ * Hero.astro — Carrusel principal de la landing page de RALUM S.A.
+ *
+ * Contiene 3 slides con contenido diferenciado:
+ * 1. Slide informativo con badges de métricas (años, garantía, multimarca).
+ * 2. Slide fotográfico de taller con CTA a trabajos a la medida.
+ * 3. Slide fotográfico de inventario con CTA al catálogo.
+ *
+ * El carrusel está implementado en Vanilla JS (sin librerías externas) y soporta:
+ * - Navegación con botones Prev / Next.
+ * - Indicadores tipo "dot" con estado activo expandido.
+ * - Autoplay cada 5 segundos con pausa al hacer hover.
+ * - Touch swipe (umbral de 45px) para dispositivos móviles.
+ * - Compatibilidad con View Transitions de Astro mediante el evento `astro:page-load`.
+ */
 ---
 
 <section id="inicio" class="relative bg-slate-950 text-white border-b-4 border-theme-red overflow-hidden select-none">

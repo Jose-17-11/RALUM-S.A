@@ -1,7 +1,27 @@
+/**
+ * @fileoverview Barra de búsqueda predictiva multi-token para el catálogo RALUM S.A.
+ *
+ * Permite localizar radiadores en tiempo real escribiendo cualquier combinación
+ * de marca, modelo, año, motor, código OEM o NIV (VIN). Cada palabra ingresada
+ * actúa como un token independiente que debe existir en el texto consolidado
+ * del producto para que aparezca como sugerencia.
+ *
+ * Características principales:
+ * - Filtrado en memoria con `useMemo` para evitar re-renders innecesarios.
+ * - Navegación accesible con teclado (↑ ↓ Enter Escape).
+ * - Cierre automático al hacer clic fuera del contenedor.
+ * - Redireccionamiento a la ruta dinámica `/{sku}` al seleccionar un producto.
+ */
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { FaSearch, FaTimes, FaCar, FaBarcode, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
 import { SAMPLE_PRODUCTS } from '../data/products';
 
+/**
+ * Componente de barra de búsqueda predictiva ubicado debajo del Header.
+ *
+ * @component
+ * @returns {JSX.Element} Barra de búsqueda con menú flotante de resultados.
+ */
 export default function QuickSearchBar() {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -48,7 +68,14 @@ export default function QuickSearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Navegación accesible con teclado (Flechas Arriba/Abajo y Enter)
+  /**
+   * Maneja la navegación por teclado dentro del listado de sugerencias.
+   * - ArrowDown / ArrowUp: mueve el índice de selección.
+   * - Enter: confirma y redirige al producto resaltado.
+   * - Escape: cierra el desplegable sin navegar.
+   *
+   * @param {React.KeyboardEvent<HTMLInputElement>} e - Evento de teclado del input.
+   */
   const handleKeyDown = (e) => {
     if (!isOpen || searchResults.length === 0) return;
 
@@ -68,13 +95,22 @@ export default function QuickSearchBar() {
     }
   };
 
-  // Redirigir al producto seleccionado
+  /**
+   * Selecciona un producto del menú y redirige a su página de detalle.
+   * Limpia el campo de búsqueda y cierra el desplegable antes de navegar.
+   *
+   * @param {{ sku: string }} product - Producto seleccionado del listado de sugerencias.
+   */
   const handleSelectProduct = (product) => {
     setIsOpen(false);
     setQuery('');
     window.location.href = `/${product.sku}`;
   };
 
+  /**
+   * Limpia el texto del input y cierra el menú de sugerencias,
+   * devolviendo el foco al campo para facilitar una nueva búsqueda.
+   */
   const handleClear = () => {
     setQuery('');
     setIsOpen(false);

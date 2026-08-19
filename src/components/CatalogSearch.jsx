@@ -1,3 +1,20 @@
+/**
+ * @fileoverview Catálogo interactivo con filtros en cascada para RALUM S.A.
+ *
+ * Permite buscar radiadores por tres modos de entrada:
+ * 1. **Vehículo** — filtros interdependientes estrictos: Año → Marca → Modelo → Versión.
+ *    Cada selector muestra únicamente las opciones válidas dado el contexto actual.
+ * 2. **Código** — búsqueda libre por SKU, OEM, NIV o título del producto.
+ * 3. **Medidas** — filtrado por alto mínimo, ancho mínimo y número de filas del núcleo.
+ *
+ * Características técnicas destacadas:
+ * - Paginación dinámica (6 productos por página) al estilo Mercado Libre.
+ * - Modal flotante con galería fotográfica, ficha técnica y menú de compartir
+ *   (WhatsApp, Facebook, copiar enlace).
+ * - Sincronización de URL mediante `window.history.pushState` sin recarga de página,
+ *   con soporte para el botón "atrás" del navegador vía evento `popstate`.
+ * - Limpieza automática de filtros inválidos al cambiar el contexto de selección.
+ */
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   FaWhatsapp, 
@@ -16,8 +33,16 @@ import {
 
 import { SAMPLE_PRODUCTS } from '../data/products';
 
+/** Número de productos mostrados por página en el grid de resultados. */
 const ITEMS_PER_PAGE = 6;
 
+/**
+ * Componente principal del catálogo de radiadores.
+ * Gestiona el estado de filtros, paginación, modal de detalle y URL.
+ *
+ * @component
+ * @returns {JSX.Element} Catálogo completo con controles de búsqueda, grid paginado y modal.
+ */
 export default function CatalogSearch() {
   const [activeTab, setActiveTab] = useState('vehiculo');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -153,6 +178,12 @@ export default function CatalogSearch() {
     return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredProducts, currentPage]);
 
+  /**
+   * Cambia la página activa del catálogo y hace scroll suave
+   * hasta el inicio de la sección `#buscador`.
+   *
+   * @param {number} page - Número de página destino (1-indexado).
+   */
   const handlePageChange = (page) => {
     setCurrentPage(page);
     const catalogElement = document.getElementById('buscador');
@@ -161,6 +192,10 @@ export default function CatalogSearch() {
     }
   };
 
+  /**
+   * Restablece todos los filtros activos y regresa a la primera página.
+   * Útil cuando no se encuentran resultados con los criterios seleccionados.
+   */
   const handleReset = () => {
     setSelectedYear('');
     setSelectedBrand('');
@@ -174,6 +209,14 @@ export default function CatalogSearch() {
   };
 
   // 5. CONTROLADORES DE MODAL Y URL
+
+  /**
+   * Abre el modal de detalle del producto seleccionado y actualiza la URL
+   * con la ruta `/{sku}` usando `history.pushState` sin recargar la página.
+   *
+   * @param {Object} product - Objeto del producto a mostrar en el modal.
+   * @param {string} product.sku - Clave única del producto usada en la ruta.
+   */
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
     setActiveImageIndex(0);
@@ -182,17 +225,34 @@ export default function CatalogSearch() {
     window.history.pushState({ sku: product.sku }, '', `/${product.sku}`);
   };
 
+  /**
+   * Cierra el modal de detalle y restaura la URL al ancla `/#buscador`
+   * para que el historial del navegador no quede con una ruta de producto huérfana.
+   */
   const handleCloseModal = () => {
     setSelectedProduct(null);
     setShowShareMenu(false);
     window.history.pushState({}, '', '/#buscador');
   };
 
+  /**
+   * Construye la URL pública absoluta de un producto para compartir en redes sociales.
+   * Retorna cadena vacía en contexto SSR (server-side) donde `window` no existe.
+   *
+   * @param {{ sku: string }} product - Producto cuya URL se desea generar.
+   * @returns {string} URL absoluta del producto, p. ej. `https://ralum-s-a.workers.dev/RAD-NIS-001`.
+   */
   const getProductShareUrl = (product) => {
     if (typeof window === 'undefined') return '';
     return `${window.location.origin}/${product.sku}`;
   };
 
+  /**
+   * Copia al portapapeles la URL pública del producto y activa
+   * un estado visual de confirmación durante 2 segundos.
+   *
+   * @param {Object} product - Producto cuyo enlace se va a copiar.
+   */
   const handleCopyLink = (product) => {
     navigator.clipboard.writeText(getProductShareUrl(product));
     setCopiedLink(true);

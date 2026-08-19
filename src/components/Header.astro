@@ -1,4 +1,17 @@
 ---
+/**
+ * Header.astro — Barra de navegación principal de RALUM S.A.
+ *
+ * Estructura:
+ * - Barra superior informativa: líneas telefónicas de atención directa.
+ * - Navbar principal: logotipo oficial, enlaces de sección (anclas) y CTA de cotización.
+ *
+ * El header es `sticky` (position: sticky, top: 0) para permanecer visible
+ * durante el scroll y tiene z-index 50 para superponerse al carrusel y al catálogo.
+ *
+ * El botón "Cotizar WhatsApp" abre un chat predefinido con mensaje de bienvenida
+ * al número de ventas +52 735 194 8537.
+ */
 import { FaWhatsapp } from "react-icons/fa";
 import { Image } from 'astro:assets';
 import logoRalum from '../assets/logo.jpg';
