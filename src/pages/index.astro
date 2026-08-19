@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
+import QuickSearchBar from '../components/QuickSearchBar.jsx'; // 👈 Importar el buscador predictivo
 import Hero from '../components/Hero.astro';
 import CatalogSearch from '../components/CatalogSearch.jsx';
 import About from '../components/About.astro';
@@ -10,6 +11,7 @@ import Footer from '../components/Footer.astro';
 
 <Layout title="RALUM S.A. | Catálogo Digital & Búsqueda de Autopartes">
   <Header />
+  <QuickSearchBar client:load />
   <Hero />
   <main id="buscador" class="bg-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grow w-full">
     <div class="text-center mb-8">
