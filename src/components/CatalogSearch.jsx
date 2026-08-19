@@ -9,11 +9,14 @@ import {
   FaLink, 
   FaCar, 
   FaRulerCombined, 
-  FaBarcode 
+  FaBarcode,
+  FaChevronLeft,
+  FaChevronRight
 } from 'react-icons/fa';
 
-// Muestra de datos representativos con múltiples imágenes y versiones
 import { SAMPLE_PRODUCTS } from '../data/products';
+
+const ITEMS_PER_PAGE = 6;
 
 export default function CatalogSearch() {
   const [activeTab, setActiveTab] = useState('vehiculo');
@@ -21,6 +24,9 @@ export default function CatalogSearch() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Estados de filtros
   const [selectedYear, setSelectedYear] = useState('');
@@ -108,7 +114,7 @@ export default function CatalogSearch() {
     if (selectedVersion && !availableVersions.includes(selectedVersion)) setSelectedVersion('');
   }, [availableVersions, selectedVersion]);
 
-  // 3. FILTRADO FINAL DE PRODUCTOS
+  // 3. FILTRADO TOTAL DE PRODUCTOS
   const filteredProducts = useMemo(() => {
     return SAMPLE_PRODUCTS.filter(product => {
       if (activeTab === 'vehiculo') {
@@ -134,6 +140,27 @@ export default function CatalogSearch() {
     });
   }, [activeTab, selectedYear, selectedBrand, selectedModel, selectedVersion, height, width, rows, codeQuery]);
 
+  // Resetear a la página 1 cuando cambie cualquier filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, selectedYear, selectedBrand, selectedModel, selectedVersion, height, width, rows, codeQuery]);
+
+  // 4. LÓGICA DE PAGINACIÓN
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    const catalogElement = document.getElementById('buscador');
+    if (catalogElement) {
+      catalogElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const handleReset = () => {
     setSelectedYear('');
     setSelectedBrand('');
@@ -143,24 +170,21 @@ export default function CatalogSearch() {
     setWidth('');
     setRows('');
     setCodeQuery('');
+    setCurrentPage(1);
   };
 
-  // 4. CONTROLADORES DE MODAL Y URL
+  // 5. CONTROLADORES DE MODAL Y URL
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
     setActiveImageIndex(0);
     setShowShareMenu(false);
     setCopiedLink(false);
-
-    // Cambiar la URL al SKU del producto sin recargar la página
     window.history.pushState({ sku: product.sku }, '', `/${product.sku}`);
   };
 
   const handleCloseModal = () => {
     setSelectedProduct(null);
     setShowShareMenu(false);
-
-    // Restaurar la URL a la vista principal
     window.history.pushState({}, '', '/#buscador');
   };
 
@@ -343,7 +367,7 @@ export default function CatalogSearch() {
         </div>
       </div>
 
-      {/* GRID DE RESULTADOS */}
+      {/* GRID DE RESULTADOS (PAGINADOS) */}
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
           <p className="text-slate-500 font-medium text-base mb-2">No se encontraron radiadores con los criterios seleccionados.</p>
@@ -352,80 +376,138 @@ export default function CatalogSearch() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map(p => (
-            <div 
-              key={p.id} 
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between hover:shadow-xl transition-all duration-300 group cursor-pointer"
-              onClick={() => handleOpenModal(p)}
-            >
-              <div className="relative h-52 bg-slate-900 overflow-hidden">
-                <img 
-                  src={p.images[0]} 
-                  alt={p.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" 
-                />
-                <span className="absolute top-3 left-3 bg-brand-navy text-white text-[10px] font-bold px-2.5 py-1 rounded shadow">
-                  SKU: {p.sku}
-                </span>
-                <span className="absolute top-3 right-3 bg-emerald-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded shadow">
-                  Stock: {p.stock} pzas
-                </span>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedProducts.map(p => (
+              <div 
+                key={p.id} 
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                onClick={() => handleOpenModal(p)}
+              >
+                <div className="relative h-52 bg-slate-900 overflow-hidden">
+                  <img 
+                    src={p.images[0]} 
+                    alt={p.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" 
+                  />
+                  <span className="absolute top-3 left-3 bg-brand-navy text-white text-[10px] font-bold px-2.5 py-1 rounded shadow">
+                    SKU: {p.sku}
+                  </span>
+                  <span className="absolute top-3 right-3 bg-emerald-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded shadow">
+                    Stock: {p.stock} pzas
+                  </span>
+                </div>
+
+                <div className="p-5 grow flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[11px] font-bold text-theme-red uppercase tracking-wider">
+                        {p.brand} • {p.model}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-semibold">{p.version}</span>
+                    </div>
+
+                    <h3 className="text-base font-bold text-slate-900 mb-3 group-hover:text-theme-red transition-colors line-clamp-2">
+                      {p.title}
+                    </h3>
+
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs space-y-1.5 mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">OEM:</span>
+                        <span className="font-bold text-slate-800">{p.oem}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">NIV Ref:</span>
+                        <span className="font-bold text-slate-800">{p.niv}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Núcleo:</span>
+                        <span className="font-bold text-slate-800">{p.coreHeight} x {p.coreWidth} mm ({p.rows} fila)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(p);
+                      }}
+                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 px-3 rounded-xl text-xs text-center transition"
+                    >
+                      Ver Detalle
+                    </button>
+                    <a
+                      href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20radiador%20SKU:%20${p.sku}%20(OEM:%20${p.oem})`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 bg-brand-navy hover:bg-theme-red text-white font-bold py-2.5 px-3 rounded-xl text-xs text-center transition flex items-center justify-center gap-1.5"
+                    >
+                      <FaWhatsapp /> Cotizar
+                    </a>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
 
-              <div className="p-5 grow flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[11px] font-bold text-theme-red uppercase tracking-wider">
-                      {p.brand} • {p.model}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-semibold">{p.version}</span>
-                  </div>
+          {/* BARRA DE PAGINACIÓN ESTILO MERCADO LIBRE */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-xs font-semibold text-slate-500">
+                Página <strong className="text-slate-900">{currentPage}</strong> de <strong className="text-slate-900">{totalPages}</strong> (Mostrando {paginatedProducts.length} de {filteredProducts.length} productos)
+              </span>
 
-                  <h3 className="text-base font-bold text-slate-900 mb-3 group-hover:text-theme-red transition-colors line-clamp-2">
-                    {p.title}
-                  </h3>
+              <div className="flex items-center gap-1.5">
+                {/* Botón Anterior */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`p-2.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition ${
+                    currentPage === 1 
+                      ? 'border-slate-200 text-slate-300 cursor-not-allowed' 
+                      : 'border-slate-300 text-slate-700 hover:bg-slate-100 active:scale-95'
+                  }`}
+                  aria-label="Página anterior"
+                >
+                  <FaChevronLeft className="w-3 h-3" />
+                  <span className="hidden sm:inline">Anterior</span>
+                </button>
 
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs space-y-1.5 mb-4">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">OEM:</span>
-                      <span className="font-bold text-slate-800">{p.oem}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">NIV Ref:</span>
-                      <span className="font-bold text-slate-800">{p.niv}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Núcleo:</span>
-                      <span className="font-bold text-slate-800">{p.coreHeight} x {p.coreWidth} mm ({p.rows} fila)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
+                {/* Lista de números de página */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenModal(p);
-                    }}
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 px-3 rounded-xl text-xs text-center transition"
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`w-9 h-9 rounded-xl text-xs font-bold transition ${
+                      currentPage === pageNumber
+                        ? 'bg-theme-red text-white shadow-md shadow-theme-red/30 scale-105'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                    }`}
                   >
-                    Ver Detalle
+                    {pageNumber}
                   </button>
-                  <a
-                    href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20radiador%20SKU:%20${p.sku}%20(OEM:%20${p.oem})`}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-1 bg-brand-navy hover:bg-theme-red text-white font-bold py-2.5 px-3 rounded-xl text-xs text-center transition flex items-center justify-center gap-1.5"
-                  >
-                    <FaWhatsapp /> Cotizar
-                  </a>
-                </div>
+                ))}
+
+                {/* Botón Siguiente */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`p-2.5 rounded-xl border text-xs font-bold flex items-center gap-1 transition ${
+                    currentPage === totalPages 
+                      ? 'border-slate-200 text-slate-300 cursor-not-allowed' 
+                      : 'border-slate-300 text-slate-700 hover:bg-slate-100 active:scale-95'
+                  }`}
+                  aria-label="Página siguiente"
+                >
+                  <span className="hidden sm:inline">Siguiente</span>
+                  <FaChevronRight className="w-3 h-3" />
+                </button>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* MODAL DETALLE ESTILO MERCADO LIBRE */}
