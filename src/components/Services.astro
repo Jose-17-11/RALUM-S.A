@@ -1,0 +1,146 @@
+---
+import { FaTools, FaSnowflake, FaCogs, FaShieldAlt, FaWhatsapp } from 'react-icons/fa';
+
+const SERVICIOS = [
+  {
+    id: 'paneles',
+    title: 'Radiadores y Paneles',
+    subtitle: 'Línea Automotriz, Carga Pesada y Maquinaria',
+    description: 'Venta, diagnóstico y reemplazo de radiadores completos y panales de enfriamiento para autos particulares, flotillas y tractocamiones.',
+    features: ['Ajuste directo OEM', 'Panales en cobre-latón y aluminio', 'Garantía contra fugas y defectos'],
+    icon: FaTools,
+    badge: 'Alta Demanda'
+  },
+  {
+    id: 'aluminio',
+    title: 'Radiadores 100% Aluminio',
+    subtitle: 'Soldadura TIG y Alto Rendimiento',
+    description: 'Diseño y fabricación de radiadores íntegramente soldados en aluminio de alta disipación térmica. Ideales para proyectos especiales, uso rudo y carreras.',
+    features: ['100% libre de tapas plásticas', 'Mayor capacidad de refrigeración', 'Resistencia extrema a presión y vibración'],
+    icon: FaCogs,
+    badge: 'Especialidad RALUM'
+  },
+  {
+    id: 'aire-acondicionado',
+    title: 'Aire Acondicionado Automotriz',
+    subtitle: 'Climatización y Sistemas Térmicos',
+    description: 'Diagnóstico integral, recarga de gas refrigerante, detección de fugas, condensadores y evaporadores para mantener la cabina de tu auto siempre fresca.',
+    features: ['Carga de gas ecológico', 'Revisión y cambio de condensadores', 'Mantenimiento preventivo y correctivo'],
+    icon: FaSnowflake,
+    badge: 'Confort y Rendimiento'
+  },
+  {
+    id: 'tanques',
+    title: 'Tanques de Aluminio para Radiador',
+    subtitle: 'Sustitución de Tapas de Plástico Rotas',
+    description: 'Eliminamos las fallas comunes de fisuras en tapas plásticas fabricando e instalando tanques (tapas) a la medida en aluminio soldado de alta resistencia.',
+    features: ['Reparación definitiva de por vida', 'Fabricación con tomas exactas', 'Pruebas hidrostáticas de presión'],
+    icon: FaShieldAlt,
+    badge: 'Solución Definitiva'
+  }
+];
+---
+
+<section id="servicios" class="py-16 bg-slate-900/60 border-t border-b border-slate-800/80 my-12 rounded-3xl overflow-hidden relative">
+  <!-- Decoración de fondo sutil -->
+  <div class="absolute -top-40 -right-40 w-96 h-96 bg-theme-red/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-brand-navy-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    
+    <!-- Encabezado de la Sección -->
+    <div class="text-center max-w-3xl mx-auto mb-14 space-y-3">
+      <span class="inline-block px-3 py-1 bg-theme-red/15 border border-theme-red/30 rounded-full text-theme-red text-xs font-bold uppercase tracking-wider">
+        Soluciones en Enfriamiento y Taller
+      </span>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        Nuestros <span class="text-theme-red underline decoration-theme-red/40">Servicios Especializados</span>
+      </h2>
+      <p class="text-slate-300 text-sm sm:text-base">
+        En RALUM S.A. no solo vendemos radiadores; contamos con taller técnico, banco de pruebas y fabricación especializada para resolver cualquier falla térmica.
+      </p>
+    </div>
+
+    <!-- Grid de Tarjetas de Servicios -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+      {SERVICIOS.map((s) => {
+        const IconComponent = s.icon;
+        return (
+          <div class="bg-slate-800/70 border border-slate-700/80 hover:border-theme-red/50 rounded-2xl p-6 sm:p-8 flex flex-col justify-between backdrop-blur-sm shadow-xl hover:shadow-2xl hover:shadow-theme-red/10 transition-all duration-300 group">
+            <div class="space-y-4">
+              
+              <!-- Cabecera de la tarjeta con Icono y Badge -->
+              <div class="flex items-center justify-between">
+                <div class="p-3 bg-brand-navy rounded-xl border border-slate-700/60 text-theme-red group-hover:scale-110 group-hover:bg-theme-red group-hover:text-white transition-all duration-300">
+                  <IconComponent className="w-6 h-6" />
+                </div>
+                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-slate-900/90 text-slate-300 border border-slate-700 rounded-lg">
+                  {s.badge}
+                </span>
+              </div>
+
+              <!-- Títulos y descripción -->
+              <div>
+                <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-theme-red transition-colors">
+                  {s.title}
+                </h3>
+                <span class="text-xs font-semibold text-slate-400 block mt-0.5 mb-3">
+                  {s.subtitle}
+                </span>
+                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+                  {s.description}
+                </p>
+              </div>
+
+              <!-- Lista de beneficios/características -->
+              <ul class="space-y-2 pt-2 border-t border-slate-700/60 text-xs text-slate-300">
+                {s.features.map((feat) => (
+                  <li class="flex items-center gap-2">
+                    <span class="text-theme-red font-bold">✓</span>
+                    <span>{feat}</span>
+                  </li>
+                ))}
+              </ul>
+
+            </div>
+
+            <!-- Botón CTA individual a WhatsApp -->
+            <div class="pt-6 mt-4">
+              <a
+                href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20servicio%20de:%20*${encodeURIComponent(s.title)}*`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full bg-slate-900/80 hover:bg-theme-red text-slate-200 hover:text-white font-bold py-2.5 px-4 rounded-xl text-xs text-center border border-slate-700 hover:border-theme-red transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-lg"
+              >
+                <FaWhatsapp className="w-4 h-4 text-emerald-400 group-hover:text-white transition-colors" />
+                <span>Cotizar {s.title}</span>
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Banner Inferior de Atención y Diagnóstico -->
+    <div class="mt-12 bg-linear-to-r from-brand-navy via-slate-800 to-brand-navy border border-slate-700/80 p-6 sm:p-8 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
+      <div class="space-y-1">
+        <h4 class="text-lg sm:text-xl font-black text-white">
+          ¿Tienes dudas sobre qué tipo de reparación requiere tu radiador?
+        </h4>
+        <p class="text-xs sm:text-sm text-slate-300">
+          Trae tu pieza a nuestro mostrador para diagnóstico directo o envíanos una foto por WhatsApp.
+        </p>
+      </div>
+      <a
+        href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20tengo%20una%20duda%20técnica%20sobre%20mi%20radiador"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="shrink-0 bg-theme-red hover:bg-theme-red-hover text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-lg shadow-theme-red/30 transition transform hover:-translate-y-0.5 flex items-center gap-2"
+      >
+        <FaWhatsapp className="w-4 h-4" />
+        <span>Consultar con un Técnico</span>
+      </a>
+    </div>
+
+  </div>
+</section>
