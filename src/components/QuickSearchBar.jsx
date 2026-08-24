@@ -2,27 +2,27 @@
  * @fileoverview Barra de búsqueda predictiva multi-token para el catálogo RALUM S.A.
  *
  * Permite localizar radiadores en tiempo real escribiendo cualquier combinación
- * de marca, modelo, año, motor, código OEM o NIV (VIN). Cada palabra ingresada
- * actúa como un token independiente que debe existir en el texto consolidado
- * del producto para que aparezca como sugerencia.
+ * de marca, modelo, año, motor, código OEM, ISS o medidas. Cada palabra ingresada
+ * actúa como un token independiente que debe coincidir dentro del registro.
  *
- * Características principales:
- * - Filtrado en memoria con `useMemo` para evitar re-renders innecesarios.
- * - Navegación accesible con teclado (↑ ↓ Enter Escape).
- * - Cierre automático al hacer clic fuera del contenedor.
- * - Redireccionamiento a la ruta dinámica `/{sku}` al seleccionar un producto.
+ * Soporta la data dinámica proveniente del webhook de n8n / Google Sheets.
  */
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { FaSearch, FaTimes, FaCar, FaBarcode, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
-import { SAMPLE_PRODUCTS } from '../data/products';
+import { FaSearch, FaTimes, FaCar, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
+import { SAMPLE_PRODUCTS as FALLBACK_PRODUCTS } from '../data/products';
 
 /**
- * Componente de barra de búsqueda predictiva ubicado debajo del Header.
+ * Componente de barra de búsqueda predictiva ubicado entre Header y Hero.
  *
  * @component
- * @returns {JSX.Element} Barra de búsqueda con menú flotante de resultados.
+ * @param {Object} props
+ * @param {Array} [props.initialProducts] - Catálogo de productos inyectado desde Astro/n8n.
+ * @returns {JSX.Element} Barra de búsqueda con menú flotante de resultados predictivos.
  */
-export default function QuickSearchBar() {
+export default function QuickSearchBar({ initialProducts = null }) {
+  // Inicialización de la lista de productos (data dinámica con fallback)
+  const [productsList] = useState(initialProducts || FALLBACK_PRODUCTS);
+
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -34,28 +34,36 @@ export default function QuickSearchBar() {
     const cleanQuery = query.trim().toLowerCase();
     if (!cleanQuery || cleanQuery.length < 2) return [];
 
-    // Separar por palabras ("chevrolet", "1.5", etc.)
+    // Descomponer en palabras clave individuales ("chevrolet", "1.6", "94", etc.)
     const tokens = cleanQuery.split(/\s+/).filter(Boolean);
 
-    return SAMPLE_PRODUCTS.filter((product) => {
-      // Cadena consolidada con toda la información de la pieza
+    return productsList.filter((product) => {
+      // Unificar arrays o cadenas de marcas, modelos, motores y años
+      const brandsStr = (product.brands || [product.brand || '']).join(' ');
+      const modelsStr = (product.models || [product.model || '']).join(' ');
+      const motorsStr = (product.motors || [product.version || '']).join(' ');
+      const yearsStr = (product.years || []).join(' ');
+
+      // Cadena consolidada para búsqueda global
       const searchableText = `
-        ${product.title} 
-        ${product.brand} 
-        ${product.model} 
-        ${product.version} 
-        ${product.sku} 
-        ${product.oem} 
+        ${product.title || ''} 
+        ${brandsStr} 
+        ${modelsStr} 
+        ${motorsStr}
+        ${product.sku || ''} 
+        ${product.iss || ''} 
+        ${product.oem || ''} 
         ${product.niv || ''} 
-        ${product.years.join(' ')} 
-        ${product.transmission} 
-        ${product.material}
+        ${yearsStr} 
+        ${product.transmission || ''} 
+        ${product.measures || ''} 
+        ${product.material || ''}
       `.toLowerCase();
 
-      // Cada palabra escrita debe existir dentro del texto de la pieza
+      // Cada palabra ingresada debe existir en la ficha del producto
       return tokens.every((token) => searchableText.includes(token));
     }).slice(0, 6); // Limitar a las 6 sugerencias más relevantes
-  }, [query]);
+  }, [query, productsList]);
 
   // Cerrar lista al hacer clic fuera del buscador
   useEffect(() => {
@@ -69,12 +77,7 @@ export default function QuickSearchBar() {
   }, []);
 
   /**
-   * Maneja la navegación por teclado dentro del listado de sugerencias.
-   * - ArrowDown / ArrowUp: mueve el índice de selección.
-   * - Enter: confirma y redirige al producto resaltado.
-   * - Escape: cierra el desplegable sin navegar.
-   *
-   * @param {React.KeyboardEvent<HTMLInputElement>} e - Evento de teclado del input.
+   * Manejo de navegación por teclado dentro del listado de sugerencias.
    */
   const handleKeyDown = (e) => {
     if (!isOpen || searchResults.length === 0) return;
@@ -96,20 +99,17 @@ export default function QuickSearchBar() {
   };
 
   /**
-   * Selecciona un producto del menú y redirige a su página de detalle.
-   * Limpia el campo de búsqueda y cierra el desplegable antes de navegar.
-   *
-   * @param {{ sku: string }} product - Producto seleccionado del listado de sugerencias.
+   * Redirige al SKU/ISS del producto seleccionado.
    */
   const handleSelectProduct = (product) => {
     setIsOpen(false);
     setQuery('');
-    window.location.href = `/${product.sku}`;
+    const targetSku = product.sku || product.iss;
+    window.location.href = `/${targetSku}`;
   };
 
   /**
-   * Limpia el texto del input y cierra el menú de sugerencias,
-   * devolviendo el foco al campo para facilitar una nueva búsqueda.
+   * Limpia el campo de búsqueda.
    */
   const handleClear = () => {
     setQuery('');
@@ -140,7 +140,7 @@ export default function QuickSearchBar() {
               if (query.trim().length >= 2) setIsOpen(true);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Escribe auto, modelo, motor, No. de parte OEM o NIV (ej: Versa 2018, Aveo 1.5, 21410...)"
+            placeholder="Escribe auto, modelo, motor, código ISS o medidas (ej: Chevy 1.6, Ranger 85-94, 1046R...)"
             className="w-full bg-slate-950/90 text-slate-100 placeholder-slate-400 text-xs sm:text-sm font-medium pl-11 pr-24 py-3 sm:py-3.5 rounded-xl border border-slate-700/80 focus:border-theme-red focus:ring-2 focus:ring-theme-red/20 focus:outline-none shadow-inner transition"
           />
 
@@ -168,69 +168,89 @@ export default function QuickSearchBar() {
             
             {/* Cabecera del desplegable */}
             <div className="bg-slate-100/90 px-4 py-2 border-b border-slate-200 flex justify-between items-center text-[11px] font-bold text-slate-500">
-              <span>Sugerencias directas de inventario ({searchResults.length})</span>
+              <span>Sugerencias directas ({searchResults.length})</span>
               <span>Usa las flechas ↑ ↓ y Enter</span>
             </div>
 
             {/* Lista de Resultados */}
             {searchResults.length > 0 ? (
               <ul className="divide-y divide-slate-100 max-h-84 sm:max-h-96 overflow-y-auto">
-                {searchResults.map((product, idx) => (
-                  <li key={product.id}>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectProduct(product)}
-                      onMouseEnter={() => setSelectedIndex(idx)}
-                      className={`w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3.5 transition ${
-                        selectedIndex === idx ? 'bg-slate-100/80' : 'hover:bg-slate-50'
-                      }`}
-                    >
-                      {/* Miniatura del producto */}
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-900 overflow-hidden shrink-0 border border-slate-200">
-                        <img
-                          src={product.images[0]}
-                          alt={product.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                {searchResults.map((product, idx) => {
+                  const displayBrand = product.brands ? product.brands.join(', ') : product.brand;
+                  const displayModel = product.models ? product.models.join(', ') : product.model;
+                  const displayYears = product.years && product.years.length > 0 
+                    ? `${product.years[0]} - ${product.years[product.years.length - 1]}`
+                    : '';
 
-                      {/* Información central */}
-                      <div className="grow min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 bg-theme-red/10 text-theme-red rounded-md">
-                            {product.brand} • {product.model}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-semibold truncate">
-                            {product.version}
-                          </span>
+                  return (
+                    <li key={product.id || idx}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectProduct(product)}
+                        onMouseEnter={() => setSelectedIndex(idx)}
+                        className={`w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3.5 transition ${
+                          selectedIndex === idx ? 'bg-slate-100/80' : 'hover:bg-slate-50'
+                        }`}
+                      >
+                        {/* Miniatura del producto */}
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-900 overflow-hidden shrink-0 border border-slate-200">
+                          <img
+                            src={product.images ? product.images[0] : FALLBACK_PRODUCTS[0].images[0]}
+                            alt={product.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
 
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                          {product.title}
-                        </h4>
+                        {/* Información central */}
+                        <div className="grow min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 bg-theme-red/10 text-theme-red rounded-md truncate max-w-[200px]">
+                              {displayBrand}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-semibold truncate">
+                              {displayModel}
+                            </span>
+                          </div>
 
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-slate-500">
-                          <span>
-                            <strong className="text-slate-700">OEM:</strong> {product.oem}
-                          </span>
-                          <span>•</span>
-                          <span>
-                            <strong className="text-slate-700">Años:</strong> {product.years[0]} - {product.years[product.years.length - 1]}
-                          </span>
-                          <span>•</span>
-                          <span className="text-emerald-700 font-bold flex items-center gap-1">
-                            <FaCheckCircle className="w-2.5 h-2.5" /> Stock: {product.stock}
-                          </span>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                            {product.title}
+                          </h4>
+
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-slate-500">
+                            <span>
+                              <strong className="text-slate-700">ISS:</strong> {product.iss || product.sku}
+                            </span>
+                            {displayYears && (
+                              <>
+                                <span>•</span>
+                                <span>
+                                  <strong className="text-slate-700">Años:</strong> {displayYears}
+                                </span>
+                              </>
+                            )}
+                            {product.measures && (
+                              <>
+                                <span>•</span>
+                                <span>
+                                  <strong className="text-slate-700">Medidas:</strong> {product.measures}
+                                </span>
+                              </>
+                            )}
+                            <span>•</span>
+                            <span className="text-emerald-700 font-bold flex items-center gap-1">
+                              <FaCheckCircle className="w-2.5 h-2.5" /> Stock: {product.stock || 10}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Botón de flecha lateral */}
-                      <div className="shrink-0 text-slate-400 group-hover:text-theme-red pl-2">
-                        <FaArrowRight className="w-3.5 h-3.5" />
-                      </div>
-                    </button>
-                  </li>
-                ))}
+                        {/* Flecha lateral */}
+                        <div className="shrink-0 text-slate-400 group-hover:text-theme-red pl-2">
+                          <FaArrowRight className="w-3.5 h-3.5" />
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <div className="p-6 text-center text-slate-500 space-y-2">
@@ -238,7 +258,7 @@ export default function QuickSearchBar() {
                   No se encontraron radiadores que coincidan con "<span className="text-slate-800 font-bold">{query}</span>"
                 </p>
                 <p className="text-[11px] text-slate-400">
-                  Prueba buscando solo el modelo (ej: <em>Versa</em>), el año o el código OEM.
+                  Prueba buscando por marca (ej: <em>Chevrolet</em>), modelo, código ISS o medidas.
                 </p>
               </div>
             )}
