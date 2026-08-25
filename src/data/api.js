@@ -19,7 +19,7 @@ export async function getProducts() {
     }
 
     const data = await res.json();
-    console.log('✅ Webhook disponible, datos obtenidos:', data);
+    // console.log('✅ Webhook disponible, datos obtenidos:', data);
     if (Array.isArray(data) && data.length > 0) {
       return data;
     }
