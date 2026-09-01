@@ -1,6 +1,19 @@
 ---
 /**
  * Contact.astro — Sección de contacto y formulario de cotización de RALUM S.A.
+ *
+ * Layout de dos columnas:
+ * - Columna izquierda (5/12): panel oscuro con datos de contacto directo
+ *   (WhatsApp, correo, atención en mostrador) y botón de apertura de chat.
+ * - Columna derecha (7/12): formulario de cotización con campos de nombre,
+ *   teléfono, correo, tipo de cliente y mensaje.
+ *
+ * El formulario se envía por `fetch` (POST JSON) al webhook de n8n
+ * `https://n8n.ralumsa.com/webhook/form-contact`. Cada campo lleva un
+ * atributo `name` porque el payload se arma con `FormData`.
+ *
+ * Número de ventas WhatsApp: +52 735 194 8537
+ * Correo de contacto: contacto@ralumsa.com.mx
  */
 import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
 ---
