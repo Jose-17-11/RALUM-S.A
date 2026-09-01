@@ -1,20 +1,10 @@
 ---
 /**
  * Header.astro — Barra de navegación principal de RALUM S.A.
- *
- * Estructura:
- * - Barra superior informativa: líneas telefónicas de atención directa.
- * - Navbar principal: logotipo oficial, enlaces de sección (anclas) y CTA de cotización.
- *
- * El header es `sticky` (position: sticky, top: 0) para permanecer visible
- * durante el scroll y tiene z-index 50 para superponerse al carrusel y al catálogo.
- *
- * El botón "Cotizar WhatsApp" abre un chat predefinido con mensaje de bienvenida
- * al número de ventas +52 735 194 8537.
  */
 import { FaWhatsapp } from "react-icons/fa";
 import { Image } from 'astro:assets';
-import logoRalum from '../assets/logo.jpg';
+import logoRalum from '../assets/logo.png';
 ---
 <header class="bg-brand-navy sticky top-0 z-50 shadow-md">
   <!-- Barra superior informativa -->
@@ -38,14 +28,14 @@ import logoRalum from '../assets/logo.jpg';
   </div>
 
   <!-- Navegación Principal -->
-  <div class="py-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-32 flex items-center justify-between">
     <!-- Logo -->
-    <a href="/" class="flex items-center group shrink-0" aria-label="Inicio - RALUM S.A.">
-      <div class="bg-white px-1 py-0 rounded-lg shadow-sm border border-slate-700/30 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
-        <img 
-          src="https://jvyrzakwwfuemplaodnv.supabase.co/storage/v1/object/public/ralumsa-test/RALUMSA/logo.jpeg" 
+    <a href="/" class="ml-8 flex items-center group shrink-0" aria-label="Inicio - RALUM S.A.">
+      <div class="rounded-2xl shadow-lg border flex items-center justify-center transition-all duration-200 group-hover:scale-105">
+        <Image 
+          src={logoRalum}
           alt="RALUM S.A. - Radiadores y Sistemas de Enfriamiento" 
-          class="h-20 w-24 max-w-32.5.5 sm:max-w-32.5 object-contain block"
+          class="bg-linear-to-b rounded-xl from-white to-slate-100 px-5 h-24 sm:h-20 w-auto max-w-50 object-contain relative z-10 block"
           loading="eager"
         />
       </div>
@@ -65,10 +55,9 @@ import logoRalum from '../assets/logo.jpg';
       href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20gustaría%20cotizar%20un%20radiador" 
       target="_blank" 
       rel="noopener noreferrer"
-      class="inline-flex items-center justify-center gap-2 bg-theme-red hover:bg-theme-red-hover text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-theme-red/25 hover:shadow-lg hover:shadow-theme-red/40 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-theme-red focus:ring-offset-2 focus:ring-offset-brand-navy"
+      class="mr-8 inline-flex items-center justify-center gap-2 bg-theme-red hover:bg-theme-red-hover text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-theme-red/25 hover:shadow-lg hover:shadow-theme-red/40 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-theme-red focus:ring-offset-2 focus:ring-offset-brand-navy"
     >
       <span>Cotizar WhatsApp</span>
-      <!-- Si estás en un archivo .astro usa class="..." en lugar de className -->
       <FaWhatsapp className="w-4 h-4 text-emerald-300" />
     </a>
   </div>

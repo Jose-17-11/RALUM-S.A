@@ -1,7 +1,7 @@
 // src/data/api.js
 import { SAMPLE_PRODUCTS as FALLBACK_PRODUCTS } from './products.js';
 
-const WEBHOOK_URL = 'https://ralumsa.agencia1711.shop/webhook/ralumsa-data';
+const WEBHOOK_URL = 'https://n8n.ralumsa.com/webhook/ralumsa-data';
 
 export async function getProducts() {
   try {

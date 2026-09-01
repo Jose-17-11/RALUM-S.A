@@ -118,7 +118,7 @@ export default function QuickSearchBar({ initialProducts = null }) {
   };
 
   return (
-    <div className="bg-slate-900 border-b border-slate-800/80 py-3.5 px-4 sm:px-6 lg:px-8 relative z-40">
+    <div className="bg-white border-b border-slate-800/80 py-3.5 px-4 sm:px-6 lg:px-8 relative z-40">
       <div ref={containerRef} className="max-w-4xl mx-auto relative">
         
         {/* Barra de Entrada */}
@@ -141,7 +141,7 @@ export default function QuickSearchBar({ initialProducts = null }) {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Escribe auto, modelo, motor, código ISS o medidas (ej: Chevy 1.6, Ranger 85-94, 1046R...)"
-            className="w-full bg-slate-950/90 text-slate-100 placeholder-slate-400 text-xs sm:text-sm font-medium pl-11 pr-24 py-3 sm:py-3.5 rounded-xl border border-slate-700/80 focus:border-theme-red focus:ring-2 focus:ring-theme-red/20 focus:outline-none shadow-inner transition"
+            className="w-full bg-white text-brand-navy-accent placeholder-slate-400 text-xs sm:text-sm font-medium pl-11 pr-24 py-3 sm:py-3.5 rounded-xl border border-slate-700/80 focus:border-theme-red focus:ring-2 focus:ring-theme-red/20 focus:outline-none shadow-inner transition"
           />
 
           {/* Botones de acción derecha */}

@@ -1,18 +1,6 @@
 ---
 /**
  * Contact.astro — Sección de contacto y formulario de cotización de RALUM S.A.
- *
- * Layout de dos columnas:
- * - Columna izquierda (5/12): panel oscuro con datos de contacto directo
- *   (WhatsApp, correo, atención en mostrador) y botón de apertura de chat.
- * - Columna derecha (7/12): formulario de cotización con campos de nombre,
- *   teléfono, correo, tipo de cliente y mensaje.
- *
- * El formulario usa un `onsubmit` con `alert()` como placeholder;
- * actualmente no envía datos a ningún backend (pendiente de integración).
- *
- * Número de ventas WhatsApp: +52 735 194 8537
- * Correo de contacto: contacto@ralumsa.com.mx
  */
 import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
 ---
@@ -35,75 +23,76 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
       
       <!-- Información de Contacto Directo -->
       <div class="lg:col-span-5 bg-brand-navy text-white rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl">
-      <h3 class="text-xl font-bold border-b border-slate-700 pb-3">Información de Atención</h3>
+        <h3 class="text-xl font-bold border-b border-slate-700 pb-3">Información de Atención</h3>
 
-      <div class="space-y-5 text-sm">
-        <!-- WhatsApp / Teléfono -->
-        <div class="flex items-start gap-4">
-          <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
-            <FaWhatsapp className="w-5 h-5" />
+        <div class="space-y-5 text-sm">
+          <!-- WhatsApp / Teléfono -->
+          <div class="flex items-start gap-4">
+            <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
+              <FaWhatsapp className="w-5 h-5" />
+            </div>
+            <div>
+              <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">WhatsApp / Ventas</span>
+              <a 
+                href="https://wa.me/527351948537" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="font-bold text-white hover:text-theme-red transition text-base block mt-0.5"
+              >
+                +52 735 194 8537
+              </a>
+            </div>
           </div>
-          <div>
-            <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">WhatsApp / Ventas</span>
-            <a 
-              href="https://wa.me/527351948537" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              class="font-bold text-white hover:text-theme-red transition text-base block mt-0.5"
-            >
-              +52 735 194 8537
-            </a>
+
+          <!-- Correo Electrónico -->
+          <div class="flex items-start gap-4">
+            <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
+              <FaEnvelope className="w-5 h-5" />
+            </div>
+            <div>
+              <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Correo Electrónico</span>
+              <span class="font-semibold text-slate-200 block mt-0.5">contacto@ralumsa.com.mx</span>
+            </div>
+          </div>
+
+          <!-- Atención en Taller y Mostrador -->
+          <div class="flex items-start gap-4">
+            <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
+              <FaTools className="w-5 h-5" />
+            </div>
+            <div>
+              <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Atención en Mostrador y Taller</span>
+              <p class="text-xs text-slate-300 leading-relaxed mt-1">
+                Cotización presencial con muestra física, entrega en mostrador y diagnósticos de enfriamiento.
+              </p>
+            </div>
           </div>
         </div>
 
-        <!-- Correo Electrónico -->
-        <div class="flex items-start gap-4">
-          <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
-            <FaEnvelope className="w-5 h-5" />
-          </div>
-          <div>
-            <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Correo Electrónico</span>
-            <span class="font-semibold text-slate-200 block mt-0.5">contacto@ralumsa.com.mx</span>
-          </div>
-        </div>
-
-        <!-- Atención en Taller y Mostrador -->
-        <div class="flex items-start gap-4">
-          <div class="bg-theme-red p-3 rounded-xl text-white shadow-md shadow-theme-red/30 flex items-center justify-center shrink-0">
-            <FaTools className="w-5 h-5" />
-          </div>
-          <div>
-            <span class="block text-xs text-slate-400 font-semibold uppercase tracking-wider">Atención en Mostrador y Taller</span>
-            <p class="text-xs text-slate-300 leading-relaxed mt-1">
-              Cotización presencial con muestra física, entrega en mostrador y diagnósticos de enfriamiento.
-            </p>
-          </div>
+        <!-- Botón de acción WhatsApp -->
+        <div class="pt-4 border-t border-slate-700">
+          <a
+            href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20solicitar%20información%20sobre%20un%20radiador"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 active:scale-[0.99]"
+          >
+            <FaWhatsapp className="w-4 h-4" />
+            <span>Abrir Chat Directo en WhatsApp</span>
+          </a>
         </div>
       </div>
-
-      <!-- Botón de acción WhatsApp -->
-      <div class="pt-4 border-t border-slate-700">
-        <a
-          href="https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20solicitar%20información%20sobre%20un%20radiador"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-xs uppercase tracking-wider text-center transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 active:scale-[0.99]"
-        >
-          <FaWhatsapp className="w-4 h-4" />
-          <span>Abrir Chat Directo en WhatsApp</span>
-        </a>
-      </div>
-    </div>
 
       <!-- Formulario de Contacto -->
       <div class="lg:col-span-7 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-xl">
-        <form class="space-y-4" onsubmit="event.preventDefault(); alert('Mensaje enviado correctamente. Nos pondremos en contacto contigo.');">
+        <form id="contact-form" class="space-y-4">
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Completo *</label>
               <input 
                 type="text" 
+                name="nombre"
                 required 
                 placeholder="Ej. Juan Pérez" 
                 class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-navy focus:outline-none" 
@@ -114,6 +103,7 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Teléfono / WhatsApp *</label>
               <input 
                 type="tel" 
+                name="telefono"
                 required 
                 placeholder="Ej. 7351234567" 
                 class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-navy focus:outline-none" 
@@ -126,6 +116,7 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Correo Electrónico</label>
               <input 
                 type="email" 
+                name="correo"
                 placeholder="correo@ejemplo.com" 
                 class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-navy focus:outline-none" 
               />
@@ -133,10 +124,10 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
 
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tipo de Cliente</label>
-              <select class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-navy focus:outline-none">
-                <option value="refaccionaria">Refaccionaria / Mayorista</option>
-                <option value="taller">Taller Mecánico</option>
-                <option value="particular">Particular / Cliente Final</option>
+              <select name="tipo_cliente" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-brand-navy focus:outline-none">
+                <option value="Refaccionaria / Mayorista">Refaccionaria / Mayorista</option>
+                <option value="Taller Mecánico">Taller Mecánico</option>
+                <option value="Particular / Cliente Final">Particular / Cliente Final</option>
               </select>
             </div>
           </div>
@@ -144,6 +135,7 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mensaje o Detalle del Radiador *</label>
             <textarea 
+              name="mensaje"
               rows="4" 
               required 
               placeholder="Indícanos el modelo del vehículo, año o número de parte que necesitas..." 
@@ -151,9 +143,13 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
             ></textarea>
           </div>
 
+          <!-- Mensaje de estado -->
+          <div id="form-status" class="hidden text-sm font-bold p-3 rounded-lg text-center"></div>
+
           <button 
             type="submit" 
-            class="w-full bg-theme-red hover:bg-theme-red-hover text-white font-bold py-3.5 px-6 rounded-xl text-sm transition uppercase tracking-wider shadow-lg shadow-theme-red/20"
+            id="submit-btn"
+            class="w-full bg-theme-red hover:bg-theme-red-hover text-white font-bold py-3.5 px-6 rounded-xl text-sm transition uppercase tracking-wider shadow-lg shadow-theme-red/20 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Enviar Solicitud
           </button>
@@ -163,3 +159,53 @@ import { FaWhatsapp, FaEnvelope, FaTools } from 'react-icons/fa';
     </div>
   </div>
 </section>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const statusDiv = document.getElementById('form-status') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      statusDiv.classList.add('hidden');
+
+      const formData = new FormData(form);
+      const payload = {
+        nombre: formData.get('nombre'),
+        telefono: formData.get('telefono'),
+        correo: formData.get('correo'),
+        tipo_cliente: formData.get('tipo_cliente'),
+        mensaje: formData.get('mensaje')
+      };
+
+      try {
+        const response = await fetch('https://n8n.ralumsa.com/webhook/form-contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          statusDiv.textContent = '✅ Solicitud enviada correctamente. Nos comunicaremos contigo a la brevedad.';
+          statusDiv.className = 'text-sm font-bold p-3 rounded-lg text-center bg-emerald-100 text-emerald-800 border border-emerald-300';
+          form.reset();
+        } else {
+          throw new Error('Error en el servidor');
+        }
+      } catch (error) {
+        statusDiv.textContent = '❌ Hubo un problema al enviar la solicitud. Por favor contáctanos directo por WhatsApp.';
+        statusDiv.className = 'text-sm font-bold p-3 rounded-lg text-center bg-rose-100 text-rose-800 border border-rose-300';
+      } finally {
+        statusDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Solicitud';
+      }
+    });
+  }
+</script>
