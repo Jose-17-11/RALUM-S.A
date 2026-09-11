@@ -19,6 +19,12 @@ import { SAMPLE_PRODUCTS as FALLBACK_PRODUCTS } from '../data/products';
 const ITEMS_PER_PAGE = 6;
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80';
 
+// Helper defensivo para extraer siempre el código DPI/ISS
+const getDpi = (p) => {
+  if (!p) return '';
+  return String(p.dpi || p.iss || p.DPI || p.ISS || p.sku || '').trim();
+};
+
 export default function CatalogSearch({ initialProducts = null }) {
   const [productsList, setProductsList] = useState(() => {
     return Array.isArray(initialProducts) && initialProducts.length > 0 
@@ -52,10 +58,10 @@ export default function CatalogSearch({ initialProducts = null }) {
   // 1. SINCRONIZACIÓN DE URL
   useEffect(() => {
     const syncProductFromUrl = () => {
-      const path = window.location.pathname.replace(/^\/+/g, '').replace(/\/+$/g, '');
+      const path = window.location.pathname.replace(/^\/+/g, '').replace(/\/+$/g, '').toLowerCase();
       if (path) {
         const match = productsList.find(
-          p => p.iss && p.iss.toLowerCase() === path.toLowerCase()
+          p => getDpi(p).toLowerCase() === path
         );
         if (match) {
           setSelectedProduct(match);
@@ -146,9 +152,10 @@ export default function CatalogSearch({ initialProducts = null }) {
       } else if (activeTab === 'codigo') {
         const q = codeQuery.toLowerCase().trim();
         if (q) {
-          const matchIss = product.iss?.toLowerCase().includes(q);
+          const dpiVal = getDpi(product).toLowerCase();
+          const matchDpi = dpiVal.includes(q);
           const matchTitle = product.title?.toLowerCase().includes(q);
-          if (!matchIss && !matchTitle) return false;
+          if (!matchDpi && !matchTitle) return false;
         }
       }
       return true;
@@ -189,8 +196,9 @@ export default function CatalogSearch({ initialProducts = null }) {
     setActiveImageIndex(0);
     setShowShareMenu(false);
     setCopiedLink(false);
-    if (product.iss) {
-      window.history.pushState({ iss: product.iss }, '', `/${product.iss}`);
+    const code = getDpi(product);
+    if (code) {
+      window.history.pushState({ dpi: code }, '', `/${code}`);
     }
   };
 
@@ -202,7 +210,7 @@ export default function CatalogSearch({ initialProducts = null }) {
 
   const getProductShareUrl = (product) => {
     if (typeof window === 'undefined') return '';
-    return `${window.location.origin}/${product.iss || ''}`;
+    return `${window.location.origin}/${getDpi(product)}`;
   };
 
   const handleCopyLink = (product) => {
@@ -385,22 +393,23 @@ export default function CatalogSearch({ initialProducts = null }) {
             {paginatedProducts.map(p => {
               const safeImages = getSafeImages(p);
               const mainImg = safeImages[0];
+              const productDpi = getDpi(p) || 'N/D';
 
               return (
                 <div 
-                  key={p.id || p.iss} 
+                  key={p.id || productDpi} 
                   className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between hover:shadow-xl transition-all duration-300 group cursor-pointer"
                   onClick={() => handleOpenModal(p)}
                 >
                   <div className="relative h-52 bg-slate-900 overflow-hidden">
                     <img 
                       src={mainImg} 
-                      alt={p.title || `Radiador DPI ${p.iss}`} 
+                      alt={p.title || `Radiador DPI ${productDpi}`} 
                       onError={(e) => { e.currentTarget.src = DEFAULT_IMAGE; }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" 
                     />
                     <span className="absolute top-3 left-3 bg-brand-navy text-white text-[11px] font-extrabold px-3 py-1 rounded shadow">
-                      DPI: {p.iss}
+                      DPI: {productDpi}
                     </span>
                   </div>
 
@@ -455,7 +464,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                         Ver Detalle
                       </button>
                       <a
-                        href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20radiador%20ISS:%20${p.iss}`}
+                        href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20radiador%20DPI:%20${productDpi}`}
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
@@ -527,6 +536,7 @@ export default function CatalogSearch({ initialProducts = null }) {
       {selectedProduct && (() => {
         const modalImages = getSafeImages(selectedProduct);
         const currentModalImg = modalImages[activeImageIndex] || modalImages[0];
+        const modalDpi = getDpi(selectedProduct) || 'N/D';
 
         return (
           <div 
@@ -588,7 +598,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="bg-brand-navy text-white text-xs font-extrabold px-3 py-1 rounded">
-                        DPI: {selectedProduct.iss}
+                        DPI: {modalDpi}
                       </span>
                     </div>
 
@@ -613,7 +623,7 @@ export default function CatalogSearch({ initialProducts = null }) {
 
                   <div className="space-y-3 pt-2">
                     <a
-                      href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20cotizar%20este%20producto:%0A-%20*${selectedProduct.title}*%0A-%20*ISS:*%20${selectedProduct.iss}`}
+                      href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20cotizar%20este%20producto:%0A-%20*${selectedProduct.title}*%0A-%20*DPI:*%20${modalDpi}`}
                       target="_blank"
                       rel="noreferrer"
                       className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm text-center transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20"
@@ -633,7 +643,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                       {showShareMenu && (
                         <div className="absolute bottom-12 left-0 right-0 bg-white border border-slate-200 rounded-xl p-3 shadow-xl flex justify-around gap-2 animate-fadeIn z-20">
                           <a
-                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Mira este radiador en RALUM S.A.: ${selectedProduct.title} (DPI: ${selectedProduct.iss})\n${getProductShareUrl(selectedProduct)}`)}`}
+                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Mira este radiador en RALUM S.A.: ${selectedProduct.title} (DPI: ${modalDpi})\n${getProductShareUrl(selectedProduct)}`)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition"
