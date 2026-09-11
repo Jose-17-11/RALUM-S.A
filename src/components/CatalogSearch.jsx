@@ -20,15 +20,12 @@ const ITEMS_PER_PAGE = 6;
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80';
 
 export default function CatalogSearch({ initialProducts = null }) {
-  
-  // Inicializar con la prop si existe, o con fallback
   const [productsList, setProductsList] = useState(() => {
     return Array.isArray(initialProducts) && initialProducts.length > 0 
       ? initialProducts 
       : FALLBACK_PRODUCTS;
   });
 
-  // Si Astro le pasa la data fresca de n8n, actualizar el estado
   useEffect(() => {
     if (Array.isArray(initialProducts) && initialProducts.length > 0) {
       setProductsList(initialProducts);
@@ -41,28 +38,24 @@ export default function CatalogSearch({ initialProducts = null }) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
 
-  // Estados de paginación
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Estados de filtros
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
   const [selectedMotor, setSelectedMotor] = useState('');
 
-  // Medidas y código/ISS
   const [measuresQuery, setMeasuresQuery] = useState('');
   const [rows, setRows] = useState('');
   const [codeQuery, setCodeQuery] = useState('');
 
-  // 1. SINCRONIZACIÓN DE URL (CARGA INICIAL Y BOTONES DEL NAVEGADOR)
+  // 1. SINCRONIZACIÓN DE URL
   useEffect(() => {
     const syncProductFromUrl = () => {
       const path = window.location.pathname.replace(/^\/+/g, '').replace(/\/+$/g, '');
       if (path) {
         const match = productsList.find(
-          p => (p.sku && p.sku.toLowerCase() === path.toLowerCase()) || 
-               (p.iss && p.iss.toLowerCase() === path.toLowerCase())
+          p => p.iss && p.iss.toLowerCase() === path.toLowerCase()
         );
         if (match) {
           setSelectedProduct(match);
@@ -78,11 +71,11 @@ export default function CatalogSearch({ initialProducts = null }) {
     return () => window.removeEventListener('popstate', syncProductFromUrl);
   }, [productsList]);
 
-  // 2. CÁLCULO DE OPCIONES DISPONIBLES EN CASCADA
+  // 2. FILTROS EN CASCADA
   const availableYears = useMemo(() => {
     let pool = productsList;
-    if (selectedBrand) pool = pool.filter(p => (p.brands || [p.brand]).includes(selectedBrand));
-    if (selectedModel) pool = pool.filter(p => (p.models || [p.model]).includes(selectedModel));
+    if (selectedBrand) pool = pool.filter(p => (p.brands || []).includes(selectedBrand));
+    if (selectedModel) pool = pool.filter(p => (p.models || []).includes(selectedModel));
     if (selectedMotor) pool = pool.filter(p => (p.motors || []).includes(selectedMotor));
     
     const yearsSet = new Set();
@@ -93,37 +86,36 @@ export default function CatalogSearch({ initialProducts = null }) {
   const availableBrands = useMemo(() => {
     let pool = productsList;
     if (selectedYear) pool = pool.filter(p => (p.years || []).includes(Number(selectedYear)));
-    if (selectedModel) pool = pool.filter(p => (p.models || [p.model]).includes(selectedModel));
+    if (selectedModel) pool = pool.filter(p => (p.models || []).includes(selectedModel));
     if (selectedMotor) pool = pool.filter(p => (p.motors || []).includes(selectedMotor));
     
     const brandsSet = new Set();
-    pool.forEach(p => (p.brands || [p.brand]).filter(Boolean).forEach(b => brandsSet.add(b)));
+    pool.forEach(p => (p.brands || []).forEach(b => brandsSet.add(b)));
     return Array.from(brandsSet).sort();
   }, [productsList, selectedYear, selectedModel, selectedMotor]);
 
   const availableModels = useMemo(() => {
     let pool = productsList;
     if (selectedYear) pool = pool.filter(p => (p.years || []).includes(Number(selectedYear)));
-    if (selectedBrand) pool = pool.filter(p => (p.brands || [p.brand]).includes(selectedBrand));
+    if (selectedBrand) pool = pool.filter(p => (p.brands || []).includes(selectedBrand));
     if (selectedMotor) pool = pool.filter(p => (p.motors || []).includes(selectedMotor));
     
     const modelsSet = new Set();
-    pool.forEach(p => (p.models || [p.model]).filter(Boolean).forEach(m => modelsSet.add(m)));
+    pool.forEach(p => (p.models || []).forEach(m => modelsSet.add(m)));
     return Array.from(modelsSet).sort();
   }, [productsList, selectedYear, selectedBrand, selectedMotor]);
 
   const availableMotors = useMemo(() => {
     let pool = productsList;
     if (selectedYear) pool = pool.filter(p => (p.years || []).includes(Number(selectedYear)));
-    if (selectedBrand) pool = pool.filter(p => (p.brands || [p.brand]).includes(selectedBrand));
-    if (selectedModel) pool = pool.filter(p => (p.models || [p.model]).includes(selectedModel));
+    if (selectedBrand) pool = pool.filter(p => (p.brands || []).includes(selectedBrand));
+    if (selectedModel) pool = pool.filter(p => (p.models || []).includes(selectedModel));
     
     const motorsSet = new Set();
-    pool.forEach(p => (p.motors || []).filter(Boolean).forEach(m => motorsSet.add(m)));
+    pool.forEach(p => (p.motors || []).forEach(m => motorsSet.add(m)));
     return Array.from(motorsSet).sort();
   }, [productsList, selectedYear, selectedBrand, selectedModel]);
 
-  // Limpieza automática si la selección previa deja de existir en el pool
   useEffect(() => {
     if (selectedYear && !availableYears.includes(Number(selectedYear))) setSelectedYear('');
   }, [availableYears, selectedYear]);
@@ -140,13 +132,13 @@ export default function CatalogSearch({ initialProducts = null }) {
     if (selectedMotor && !availableMotors.includes(selectedMotor)) setSelectedMotor('');
   }, [availableMotors, selectedMotor]);
 
-  // 3. FILTRADO TOTAL DE PRODUCTOS
+  // 3. FILTRADO
   const filteredProducts = useMemo(() => {
     return productsList.filter(product => {
       if (activeTab === 'vehiculo') {
         if (selectedYear && !(product.years || []).includes(Number(selectedYear))) return false;
-        if (selectedBrand && !(product.brands || [product.brand]).includes(selectedBrand)) return false;
-        if (selectedModel && !(product.models || [product.model]).includes(selectedModel)) return false;
+        if (selectedBrand && !(product.brands || []).includes(selectedBrand)) return false;
+        if (selectedModel && !(product.models || []).includes(selectedModel)) return false;
         if (selectedMotor && !(product.motors || []).includes(selectedMotor)) return false;
       } else if (activeTab === 'medidas') {
         if (measuresQuery && !product.measures?.toLowerCase().includes(measuresQuery.toLowerCase().trim())) return false;
@@ -154,23 +146,20 @@ export default function CatalogSearch({ initialProducts = null }) {
       } else if (activeTab === 'codigo') {
         const q = codeQuery.toLowerCase().trim();
         if (q) {
-          const matchSku = product.sku?.toLowerCase().includes(q);
           const matchIss = product.iss?.toLowerCase().includes(q);
-          const matchOem = product.oem?.toLowerCase().includes(q);
           const matchTitle = product.title?.toLowerCase().includes(q);
-          if (!matchSku && !matchIss && !matchOem && !matchTitle) return false;
+          if (!matchIss && !matchTitle) return false;
         }
       }
       return true;
     });
   }, [productsList, activeTab, selectedYear, selectedBrand, selectedModel, selectedMotor, measuresQuery, rows, codeQuery]);
 
-  // Resetear a página 1 con cambios de filtro
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab, selectedYear, selectedBrand, selectedModel, selectedMotor, measuresQuery, rows, codeQuery]);
 
-  // 4. LÓGICA DE PAGINACIÓN
+  // 4. PAGINACIÓN
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
   const paginatedProducts = useMemo(() => {
@@ -180,10 +169,7 @@ export default function CatalogSearch({ initialProducts = null }) {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    const catalogElement = document.getElementById('buscador');
-    if (catalogElement) {
-      catalogElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    document.getElementById('buscador')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleReset = () => {
@@ -197,15 +183,14 @@ export default function CatalogSearch({ initialProducts = null }) {
     setCurrentPage(1);
   };
 
-  // 5. CONTROLADORES DE MODAL Y URL
+  // 5. MODAL
   const handleOpenModal = (product) => {
     setSelectedProduct(product);
     setActiveImageIndex(0);
     setShowShareMenu(false);
     setCopiedLink(false);
-    const targetSku = product.sku || product.iss;
-    if (targetSku) {
-      window.history.pushState({ sku: targetSku }, '', `/${targetSku}`);
+    if (product.iss) {
+      window.history.pushState({ iss: product.iss }, '', `/${product.iss}`);
     }
   };
 
@@ -217,8 +202,7 @@ export default function CatalogSearch({ initialProducts = null }) {
 
   const getProductShareUrl = (product) => {
     if (typeof window === 'undefined') return '';
-    const targetSku = product.sku || product.iss || '';
-    return `${window.location.origin}/${targetSku}`;
+    return `${window.location.origin}/${product.iss || ''}`;
   };
 
   const handleCopyLink = (product) => {
@@ -227,7 +211,6 @@ export default function CatalogSearch({ initialProducts = null }) {
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  // Helper para obtener las imágenes seguras de un producto
   const getSafeImages = (product) => {
     if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
       const validImages = product.images.filter(img => typeof img === 'string' && img.trim().length > 0);
@@ -238,7 +221,7 @@ export default function CatalogSearch({ initialProducts = null }) {
 
   return (
     <div className="w-full" id="buscador">
-      {/* CARD DE CONTROLES DE BÚSQUEDA */}
+      {/* CONTROLES */}
       <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden mb-10">
         <div className="bg-slate-100 p-2 border-b border-slate-200 flex flex-wrap gap-2">
           <button
@@ -255,7 +238,7 @@ export default function CatalogSearch({ initialProducts = null }) {
               activeTab === 'codigo' ? 'bg-brand-navy text-white shadow-md' : 'bg-transparent text-slate-600 hover:bg-slate-200'
             }`}
           >
-            <FaBarcode className="text-theme-red" /> No. Parte / ISS / Clave
+            <FaBarcode className="text-theme-red" /> Búsqueda por Código ISS
           </button>
           <button
             onClick={() => setActiveTab('medidas')}
@@ -268,7 +251,6 @@ export default function CatalogSearch({ initialProducts = null }) {
         </div>
 
         <div className="p-6 bg-white">
-          {/* TAB 1: VEHÍCULO EN CASCADA */}
           {activeTab === 'vehiculo' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
@@ -329,11 +311,10 @@ export default function CatalogSearch({ initialProducts = null }) {
             </div>
           )}
 
-          {/* TAB 2: ISS / CLAVE */}
           {activeTab === 'codigo' && (
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                Búsqueda Rápida por Código ISS o Clave
+                Búsqueda Rápida por Código ISS
               </label>
               <div className="relative">
                 <input
@@ -345,56 +326,52 @@ export default function CatalogSearch({ initialProducts = null }) {
                 />
                 <FaSearch className="absolute left-3.5 top-4 text-slate-400" />
               </div>
-              <p className="text-[11px] text-slate-500 mt-1.5">
-                Ingresa el código ISS de catálogo para localización directa.
-              </p>
             </div>
           )}
 
-          {/* TAB 3: MEDIDAS */}
           {activeTab === 'medidas' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Medidas de Panal (pulgadas)</label>
                 <input
                   type="text"
-                  placeholder="Ej: 26 1/4, 18, 24..."
+                  placeholder="Ej: 26 1/4 x 17 1/4..."
                   value={measuresQuery}
                   onChange={e => setMeasuresQuery(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold focus:ring-2 focus:ring-theme-red focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Filas / Hileras</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Hileras / Filas</label>
                 <select
                   value={rows}
                   onChange={e => setRows(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm font-semibold focus:ring-2 focus:ring-theme-red focus:outline-none"
                 >
                   <option value="">Cualquiera</option>
-                  <option value="1">1 Fila</option>
-                  <option value="2">2 Filas</option>
+                  <option value="1">1 Hilera</option>
+                  <option value="2">2 Hileras</option>
+                  <option value="3">3 Hileras</option>
                 </select>
               </div>
             </div>
           )}
 
-          {/* BARRA INFERIOR DE ESTADO */}
           <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
             <span className="font-bold text-slate-600">
-              Mostrando <strong className="text-slate-900">{filteredProducts.length}</strong> productos compatibles
+              Mostrando <strong className="text-slate-900">{filteredProducts.length}</strong> radiadores compatibles
             </span>
             <button 
               onClick={handleReset} 
               className="text-theme-red font-bold hover:underline transition"
             >
-              Limpiar Todos los Filtros
+              Limpiar Filtros
             </button>
           </div>
         </div>
       </div>
 
-      {/* GRID DE RESULTADOS */}
+      {/* RESULTADOS */}
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm">
           <p className="text-slate-500 font-medium text-base mb-2">No se encontraron radiadores con los criterios seleccionados.</p>
@@ -411,32 +388,27 @@ export default function CatalogSearch({ initialProducts = null }) {
 
               return (
                 <div 
-                  key={p.id || p.sku || p.iss} 
+                  key={p.id || p.iss} 
                   className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md flex flex-col justify-between hover:shadow-xl transition-all duration-300 group cursor-pointer"
                   onClick={() => handleOpenModal(p)}
                 >
                   <div className="relative h-52 bg-slate-900 overflow-hidden">
                     <img 
                       src={mainImg} 
-                      alt={p.title || 'Radiador automotriz'} 
+                      alt={p.title || `Radiador DPI ${p.iss}`} 
                       onError={(e) => { e.currentTarget.src = DEFAULT_IMAGE; }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" 
                     />
-                    <span className="absolute top-3 left-3 bg-brand-navy text-white text-[10px] font-bold px-2.5 py-1 rounded shadow">
-                      ISS: {p.iss || p.sku}
-                    </span>
-                    <span className="absolute top-3 right-3 bg-emerald-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded shadow">
-                      Stock: {p.stock || 10} pzas
+                    <span className="absolute top-3 left-3 bg-brand-navy text-white text-[11px] font-extrabold px-3 py-1 rounded shadow">
+                      ISS: {p.iss}
                     </span>
                   </div>
 
                   <div className="p-5 grow flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-[11px] font-bold text-theme-red uppercase tracking-wider">
-                          {p.brands && p.brands.length > 0 ? p.brands.join(', ') : p.brand}
-                        </span>
-                      </div>
+                      <span className="text-[11px] font-bold text-theme-red uppercase tracking-wider block mb-1 truncate">
+                        {p.brands && p.brands.length > 0 ? p.brands.join(', ') : 'Multimarca'}
+                      </span>
 
                       <h3 className="text-base font-bold text-slate-900 mb-3 group-hover:text-theme-red transition-colors line-clamp-2">
                         {p.title}
@@ -446,18 +418,22 @@ export default function CatalogSearch({ initialProducts = null }) {
                         <div className="flex justify-between">
                           <span className="text-slate-500">Modelos:</span>
                           <span className="font-bold text-slate-800 text-right truncate max-w-[180px]">
-                            {p.models && p.models.length > 0 ? p.models.join(', ') : (p.model || 'N/A')}
+                            {p.models && p.models.length > 0 ? p.models.join(', ') : 'Varios'}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Motores:</span>
                           <span className="font-bold text-slate-800">
-                            {p.motors && p.motors.length > 0 ? p.motors.join(', ') : 'N/A'}
+                            {p.motors && p.motors.length > 0 ? p.motors.join(', ') : 'Varios'}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">Medidas:</span>
-                          <span className="font-bold text-slate-800">{p.measures || 'Estándar'} ({p.rows || 1} fila)</span>
+                          <span className="font-bold text-slate-800">{p.measures || 'N/D'} ({p.rows || 1} hilera{p.rows > 1 ? 's' : ''})</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Transmisión:</span>
+                          <span className="font-bold text-slate-800">{p.transmission}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">A/C:</span>
@@ -479,7 +455,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                         Ver Detalle
                       </button>
                       <a
-                        href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20radiador%20ISS:%20${p.iss || p.sku}`}
+                        href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20me%20interesa%20cotizar%20el%20radiador%20ISS:%20${p.iss}`}
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
@@ -494,7 +470,7 @@ export default function CatalogSearch({ initialProducts = null }) {
             })}
           </div>
 
-          {/* BARRA DE PAGINACIÓN */}
+          {/* PAGINACIÓN */}
           {totalPages > 1 && (
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
               <span className="text-xs font-semibold text-slate-500">
@@ -563,7 +539,7 @@ export default function CatalogSearch({ initialProducts = null }) {
             >
               <div className="sticky top-0 bg-white border-b border-slate-200 p-4 px-6 flex justify-between items-center z-10">
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  {selectedProduct.brands ? selectedProduct.brands.join(' / ') : selectedProduct.brand} &gt; {selectedProduct.model || ''}
+                  {selectedProduct.brands ? selectedProduct.brands.join(' / ') : ''}
                 </span>
                 <button
                   onClick={handleCloseModal}
@@ -585,7 +561,6 @@ export default function CatalogSearch({ initialProducts = null }) {
                     />
                   </div>
 
-                  {/* Miniaturas sólo si hay más de 1 imagen */}
                   {modalImages.length > 1 && (
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {modalImages.map((img, idx) => (
@@ -612,10 +587,9 @@ export default function CatalogSearch({ initialProducts = null }) {
                 <div className="flex flex-col justify-between space-y-6">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-2.5 py-0.5 rounded">
-                        Disponible ({selectedProduct.stock || 10} pzas)
+                      <span className="bg-brand-navy text-white text-xs font-extrabold px-3 py-1 rounded">
+                        ISS: {selectedProduct.iss}
                       </span>
-                      <span className="text-xs text-slate-400">ISS: {selectedProduct.iss || selectedProduct.sku}</span>
                     </div>
 
                     <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight mb-4">
@@ -624,22 +598,22 @@ export default function CatalogSearch({ initialProducts = null }) {
 
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2.5 text-xs">
                       <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">
-                        Ficha Técnica
+                        Ficha Técnica Oficial
                       </h4>
-                      <div className="flex justify-between"><span className="text-slate-500">Marcas:</span><span className="font-bold text-slate-800">{selectedProduct.brands?.join(', ') || selectedProduct.brand}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Modelos:</span><span className="font-bold text-slate-800">{selectedProduct.models?.join(', ') || selectedProduct.model || 'N/A'}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Motores:</span><span className="font-bold text-slate-800">{selectedProduct.motors?.join(', ') || 'N/A'}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Marcas:</span><span className="font-bold text-slate-800">{selectedProduct.brands?.join(', ') || 'N/D'}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Modelos:</span><span className="font-bold text-slate-800">{selectedProduct.models?.join(', ') || 'N/D'}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Motores:</span><span className="font-bold text-slate-800">{selectedProduct.motors?.join(', ') || 'N/D'}</span></div>
                       <div className="flex justify-between"><span className="text-slate-500">Años Compatibles:</span><span className="font-bold text-slate-800">{selectedProduct.years?.join(', ') || 'Varios'}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Medidas de Panal:</span><span className="font-bold text-slate-800">{selectedProduct.measures || 'Estándar'}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Medidas de Panal:</span><span className="font-bold text-slate-800">{selectedProduct.measures || 'N/D'}</span></div>
                       <div className="flex justify-between"><span className="text-slate-500">Transmisión:</span><span className="font-bold text-slate-800">{selectedProduct.transmission}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Filas / Hileras:</span><span className="font-bold text-slate-800">{selectedProduct.rows || 1}</span></div>
-                      <div className="flex justify-between"><span className="text-slate-500">Aire Acondicionado:</span><span className="font-bold text-slate-800">{selectedProduct.hasAC ? 'SÍ' : 'NO'}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Hileras / Filas:</span><span className="font-bold text-slate-800">{selectedProduct.rows || 1}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Aire Acondicionado (A/C):</span><span className="font-bold text-slate-800">{selectedProduct.hasAC ? 'SÍ' : 'NO'}</span></div>
                     </div>
                   </div>
 
                   <div className="space-y-3 pt-2">
                     <a
-                      href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20cotizar%20este%20producto:%0A-%20*${selectedProduct.title}*%0A-%20*ISS:*%20${selectedProduct.iss || selectedProduct.sku}`}
+                      href={`https://wa.me/527351948537?text=Hola%20RALUM%20S.A.,%20quisiera%20cotizar%20este%20producto:%0A-%20*${selectedProduct.title}*%0A-%20*ISS:*%20${selectedProduct.iss}`}
                       target="_blank"
                       rel="noreferrer"
                       className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl text-sm text-center transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20"
@@ -659,7 +633,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                       {showShareMenu && (
                         <div className="absolute bottom-12 left-0 right-0 bg-white border border-slate-200 rounded-xl p-3 shadow-xl flex justify-around gap-2 animate-fadeIn z-20">
                           <a
-                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Mira este radiador en RALUM S.A.: ${selectedProduct.title} (ISS: ${selectedProduct.iss || selectedProduct.sku})\n${getProductShareUrl(selectedProduct)}`)}`}
+                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Mira este radiador en RALUM S.A.: ${selectedProduct.title} (ISS: ${selectedProduct.iss})\n${getProductShareUrl(selectedProduct)}`)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition"

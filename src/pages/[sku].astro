@@ -6,17 +6,23 @@ import { getProducts } from '../data/api.js';
 export async function getStaticPaths() {
   const products = await getProducts();
 
-  return products.map((product) => ({
-    params: { sku: product.sku },
-    props: { product, allProducts: products },
+  // Filtrar que exista un código DPI válido para generar la ruta estática
+  const validProducts = products.filter(
+    (product) => product && typeof product.iss === 'string' && product.iss.trim().length > 0
+  );
+
+  return validProducts.map((product) => ({
+    params: { sku: product.iss.trim() },
+    props: { product, allProducts: validProducts },
   }));
 }
 
 const { product, allProducts } = Astro.props;
 
-// Metadatos optimizados para SEO y Open Graph
-const pageTitle = `${product.title} (OEM: ${product.oem}) | RALUM S.A.`;
-const pageDescription = `Radiador para ${product.brand} ${product.model} (${product.transmission}). Medidas: ${product.measures}. Clave: ${product.sku}. ¡Cotiza directo en RALUM S.A.!`;
+const mainBrand = product.brands?.[0] || 'Multimarca';
+const mainModel = product.models?.[0] || '';
+const pageTitle = `${product.title} (ISS: ${product.iss}) | RALUM S.A.`;
+const pageDescription = `Radiador automotriz para ${mainBrand} ${mainModel} (${product.transmission}). Medidas: ${product.measures}. Clave ISS: ${product.iss}. ¡Cotiza directo en RALUM S.A.!`;
 const pageImage = product.images?.[0] || 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80';
 ---
 

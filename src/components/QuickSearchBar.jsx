@@ -1,27 +1,15 @@
-/**
- * @fileoverview Barra de búsqueda predictiva multi-token para el catálogo RALUM S.A.
- *
- * Permite localizar radiadores en tiempo real escribiendo cualquier combinación
- * de marca, modelo, año, motor, código OEM, ISS o medidas. Cada palabra ingresada
- * actúa como un token independiente que debe coincidir dentro del registro.
- *
- * Soporta la data dinámica proveniente del webhook de n8n / Google Sheets.
- */
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { FaSearch, FaTimes, FaCar, FaArrowRight, FaCheckCircle } from 'react-icons/fa';
+import { FaSearch, FaTimes, FaCar, FaArrowRight } from 'react-icons/fa';
 import { SAMPLE_PRODUCTS as FALLBACK_PRODUCTS } from '../data/products';
 
-/**
- * Componente de barra de búsqueda predictiva ubicado entre Header y Hero.
- *
- * @component
- * @param {Object} props
- * @param {Array} [props.initialProducts] - Catálogo de productos inyectado desde Astro/n8n.
- * @returns {JSX.Element} Barra de búsqueda con menú flotante de resultados predictivos.
- */
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80';
+
 export default function QuickSearchBar({ initialProducts = null }) {
-  // Inicialización de la lista de productos (data dinámica con fallback)
-  const [productsList] = useState(initialProducts || FALLBACK_PRODUCTS);
+  const [productsList] = useState(() => {
+    return Array.isArray(initialProducts) && initialProducts.length > 0
+      ? initialProducts
+      : FALLBACK_PRODUCTS;
+  });
 
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -34,38 +22,29 @@ export default function QuickSearchBar({ initialProducts = null }) {
     const cleanQuery = query.trim().toLowerCase();
     if (!cleanQuery || cleanQuery.length < 2) return [];
 
-    // Descomponer en palabras clave individuales ("chevrolet", "1.6", "94", etc.)
     const tokens = cleanQuery.split(/\s+/).filter(Boolean);
 
     return productsList.filter((product) => {
-      // Unificar arrays o cadenas de marcas, modelos, motores y años
-      const brandsStr = (product.brands || [product.brand || '']).join(' ');
-      const modelsStr = (product.models || [product.model || '']).join(' ');
-      const motorsStr = (product.motors || [product.version || '']).join(' ');
+      const brandsStr = (product.brands || []).join(' ');
+      const modelsStr = (product.models || []).join(' ');
+      const motorsStr = (product.motors || []).join(' ');
       const yearsStr = (product.years || []).join(' ');
 
-      // Cadena consolidada para búsqueda global
       const searchableText = `
         ${product.title || ''} 
         ${brandsStr} 
         ${modelsStr} 
         ${motorsStr}
-        ${product.sku || ''} 
         ${product.iss || ''} 
-        ${product.oem || ''} 
-        ${product.niv || ''} 
         ${yearsStr} 
         ${product.transmission || ''} 
-        ${product.measures || ''} 
-        ${product.material || ''}
+        ${product.measures || ''}
       `.toLowerCase();
 
-      // Cada palabra ingresada debe existir en la ficha del producto
       return tokens.every((token) => searchableText.includes(token));
-    }).slice(0, 6); // Limitar a las 6 sugerencias más relevantes
+    }).slice(0, 6);
   }, [query, productsList]);
 
-  // Cerrar lista al hacer clic fuera del buscador
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -76,9 +55,6 @@ export default function QuickSearchBar({ initialProducts = null }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  /**
-   * Manejo de navegación por teclado dentro del listado de sugerencias.
-   */
   const handleKeyDown = (e) => {
     if (!isOpen || searchResults.length === 0) return;
 
@@ -98,19 +74,12 @@ export default function QuickSearchBar({ initialProducts = null }) {
     }
   };
 
-  /**
-   * Redirige al SKU/ISS del producto seleccionado.
-   */
   const handleSelectProduct = (product) => {
     setIsOpen(false);
     setQuery('');
-    const targetSku = product.sku || product.iss;
-    window.location.href = `/${targetSku}`;
+    window.location.href = `/${product.iss}`;
   };
 
-  /**
-   * Limpia el campo de búsqueda.
-   */
   const handleClear = () => {
     setQuery('');
     setIsOpen(false);
@@ -121,7 +90,6 @@ export default function QuickSearchBar({ initialProducts = null }) {
     <div className="bg-white border-b border-slate-800/80 py-3.5 px-4 sm:px-6 lg:px-8 relative z-40">
       <div ref={containerRef} className="max-w-4xl mx-auto relative">
         
-        {/* Barra de Entrada */}
         <div className="relative flex items-center">
           <div className="absolute left-4 text-slate-400 pointer-events-none flex items-center gap-2">
             <FaSearch className="w-4 h-4 text-theme-red" />
@@ -140,11 +108,10 @@ export default function QuickSearchBar({ initialProducts = null }) {
               if (query.trim().length >= 2) setIsOpen(true);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Escribe auto, modelo, motor, código ISS o medidas (ej: Chevy 1.6, Ranger 85-94, 1046R...)"
+            placeholder="Escribe auto, modelo, motor, código DPI o medidas (ej: Chevy 1.6, Ranger 85-94, 1046R...)"
             className="w-full bg-white text-brand-navy-accent placeholder-slate-400 text-xs sm:text-sm font-medium pl-11 pr-24 py-3 sm:py-3.5 rounded-xl border border-slate-700/80 focus:border-theme-red focus:ring-2 focus:ring-theme-red/20 focus:outline-none shadow-inner transition"
           />
 
-          {/* Botones de acción derecha */}
           <div className="absolute right-3 flex items-center gap-1.5">
             {query && (
               <button
@@ -162,28 +129,26 @@ export default function QuickSearchBar({ initialProducts = null }) {
           </div>
         </div>
 
-        {/* MENÚ FLOTANTE DE RESULTADOS PREDICTIVOS */}
         {isOpen && query.trim().length >= 2 && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 text-slate-900 animate-fadeIn">
             
-            {/* Cabecera del desplegable */}
             <div className="bg-slate-100/90 px-4 py-2 border-b border-slate-200 flex justify-between items-center text-[11px] font-bold text-slate-500">
               <span>Sugerencias directas ({searchResults.length})</span>
               <span>Usa las flechas ↑ ↓ y Enter</span>
             </div>
 
-            {/* Lista de Resultados */}
             {searchResults.length > 0 ? (
               <ul className="divide-y divide-slate-100 max-h-84 sm:max-h-96 overflow-y-auto">
                 {searchResults.map((product, idx) => {
-                  const displayBrand = product.brands ? product.brands.join(', ') : product.brand;
-                  const displayModel = product.models ? product.models.join(', ') : product.model;
+                  const displayBrand = product.brands && product.brands.length > 0 ? product.brands.join(', ') : 'Multimarca';
+                  const displayModel = product.models && product.models.length > 0 ? product.models.join(', ') : '';
                   const displayYears = product.years && product.years.length > 0 
                     ? `${product.years[0]} - ${product.years[product.years.length - 1]}`
                     : '';
+                  const mainImage = product.images && product.images.length > 0 ? product.images[0] : DEFAULT_IMAGE;
 
                   return (
-                    <li key={product.id || idx}>
+                    <li key={product.id || product.iss || idx}>
                       <button
                         type="button"
                         onClick={() => handleSelectProduct(product)}
@@ -192,24 +157,25 @@ export default function QuickSearchBar({ initialProducts = null }) {
                           selectedIndex === idx ? 'bg-slate-100/80' : 'hover:bg-slate-50'
                         }`}
                       >
-                        {/* Miniatura del producto */}
                         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-900 overflow-hidden shrink-0 border border-slate-200">
                           <img
-                            src={product.images ? product.images[0] : FALLBACK_PRODUCTS[0].images[0]}
+                            src={mainImage}
                             alt={product.title}
+                            onError={(e) => { e.currentTarget.src = DEFAULT_IMAGE; }}
                             className="w-full h-full object-cover"
                           />
                         </div>
 
-                        {/* Información central */}
                         <div className="grow min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
                             <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 bg-theme-red/10 text-theme-red rounded-md truncate max-w-[200px]">
                               {displayBrand}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-semibold truncate">
-                              {displayModel}
-                            </span>
+                            {displayModel && (
+                              <span className="text-[10px] text-slate-400 font-semibold truncate">
+                                {displayModel}
+                              </span>
+                            )}
                           </div>
 
                           <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
@@ -218,7 +184,7 @@ export default function QuickSearchBar({ initialProducts = null }) {
 
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px] text-slate-500">
                             <span>
-                              <strong className="text-slate-700">ISS:</strong> {product.iss || product.sku}
+                              <strong className="text-slate-700">ISS:</strong> {product.iss}
                             </span>
                             {displayYears && (
                               <>
@@ -237,13 +203,12 @@ export default function QuickSearchBar({ initialProducts = null }) {
                               </>
                             )}
                             <span>•</span>
-                            <span className="text-emerald-700 font-bold flex items-center gap-1">
-                              <FaCheckCircle className="w-2.5 h-2.5" /> Stock: {product.stock || 10}
+                            <span>
+                              <strong className="text-slate-700">A/C:</strong> {product.hasAC ? 'SÍ' : 'NO'}
                             </span>
                           </div>
                         </div>
 
-                        {/* Flecha lateral */}
                         <div className="shrink-0 text-slate-400 group-hover:text-theme-red pl-2">
                           <FaArrowRight className="w-3.5 h-3.5" />
                         </div>
@@ -258,12 +223,11 @@ export default function QuickSearchBar({ initialProducts = null }) {
                   No se encontraron radiadores que coincidan con "<span className="text-slate-800 font-bold">{query}</span>"
                 </p>
                 <p className="text-[11px] text-slate-400">
-                  Prueba buscando por marca (ej: <em>Chevrolet</em>), modelo, código ISS o medidas.
+                  Prueba buscando por marca (ej: <em>Chevrolet</em>), modelo, código DPI o medidas.
                 </p>
               </div>
             )}
 
-            {/* Pie del desplegable */}
             <div className="bg-slate-50 px-4 py-2.5 border-t border-slate-200 text-center">
               <a
                 href="#buscador"

@@ -10,7 +10,6 @@ export async function getProducts() {
       headers: {
         'Accept': 'application/json',
       },
-      // Evitar que la petición se quede en caché durante desarrollo
       cache: 'no-store'
     });
 
@@ -19,9 +18,21 @@ export async function getProducts() {
     }
 
     const data = await res.json();
-    // console.log('✅ Webhook disponible, datos obtenidos:', data);
     if (Array.isArray(data) && data.length > 0) {
-      return data;
+      return data.map(item => ({
+        id: String(item.id || item.iss || item.sku || ''),
+        iss: String(item.iss || item.sku || '').trim(),
+        title: item.title || `Radiador ${item.brand || (item.brands ? item.brands[0] : '')} ${item.model || (item.models ? item.models[0] : '')}`.trim(),
+        brands: Array.isArray(item.brands) ? item.brands : (item.brand ? [item.brand] : []),
+        models: Array.isArray(item.models) ? item.models : (item.model ? [item.model] : []),
+        motors: Array.isArray(item.motors) ? item.motors : (item.motor ? [item.motor] : []),
+        years: Array.isArray(item.years) ? item.years : [],
+        transmission: item.transmission || 'No especificada',
+        measures: item.measures || '',
+        rows: item.rows || 1,
+        hasAC: Boolean(item.hasAC),
+        images: Array.isArray(item.images) && item.images.length > 0 ? item.images : []
+      }));
     }
     
     return FALLBACK_PRODUCTS;
