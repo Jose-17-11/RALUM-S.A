@@ -18,7 +18,6 @@ export async function getProducts() {
     }
 
     const data = await res.json();
-    console.log(data);
     
     if (Array.isArray(data) && data.length > 0) {
       return data.map(item => ({
