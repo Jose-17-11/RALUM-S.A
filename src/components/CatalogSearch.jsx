@@ -238,7 +238,7 @@ export default function CatalogSearch({ initialProducts = null }) {
               activeTab === 'codigo' ? 'bg-brand-navy text-white shadow-md' : 'bg-transparent text-slate-600 hover:bg-slate-200'
             }`}
           >
-            <FaBarcode className="text-theme-red" /> Búsqueda por Código ISS
+            <FaBarcode className="text-theme-red" /> Búsqueda por Código DPI
           </button>
           <button
             onClick={() => setActiveTab('medidas')}
@@ -314,7 +314,7 @@ export default function CatalogSearch({ initialProducts = null }) {
           {activeTab === 'codigo' && (
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                Búsqueda Rápida por Código ISS
+                Búsqueda Rápida por Código DPI
               </label>
               <div className="relative">
                 <input
@@ -400,7 +400,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" 
                     />
                     <span className="absolute top-3 left-3 bg-brand-navy text-white text-[11px] font-extrabold px-3 py-1 rounded shadow">
-                      ISS: {p.iss}
+                      DPI: {p.iss}
                     </span>
                   </div>
 
@@ -588,7 +588,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="bg-brand-navy text-white text-xs font-extrabold px-3 py-1 rounded">
-                        ISS: {selectedProduct.iss}
+                        DPI: {selectedProduct.iss}
                       </span>
                     </div>
 
@@ -633,7 +633,7 @@ export default function CatalogSearch({ initialProducts = null }) {
                       {showShareMenu && (
                         <div className="absolute bottom-12 left-0 right-0 bg-white border border-slate-200 rounded-xl p-3 shadow-xl flex justify-around gap-2 animate-fadeIn z-20">
                           <a
-                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Mira este radiador en RALUM S.A.: ${selectedProduct.title} (ISS: ${selectedProduct.iss})\n${getProductShareUrl(selectedProduct)}`)}`}
+                            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Mira este radiador en RALUM S.A.: ${selectedProduct.title} (DPI: ${selectedProduct.iss})\n${getProductShareUrl(selectedProduct)}`)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition"
